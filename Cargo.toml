@@ -1,0 +1,20 @@
+[package]
+name = "crc-any"
+version = "1.0.0"
+authors = ["Magic Len <len@magiclen.org>"]
+repository = "https://github.com/magiclen/crc-any"
+homepage = "https://magiclen.org/crc-any"
+keywords = ["hash", "crc", "crc16", "crc32", "crc64"]
+categories = ["algorithms"]
+description= "To compute CRC values by providing the length of bits, expression, reflection, an initial value and a final xor value. It has built-in CRC-8-ATM, CRC-8-CDMA, CRC-16-IBM, CRC16-CCITT, CRC-32-IEEE, CRC-32-C, CRC-64-ISO and CRC-64-ECMA functions."
+readme = "README.md"
+license = "MIT"
+
+[badges]
+travis-ci = { repository = "magiclen/crc-any", branch = "master" }
+appveyor = { repository = "magiclen/crc-any", branch = "master", service = "github" }
+
+[dependencies]
+
+[features]
+develop = []
