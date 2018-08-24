@@ -39,9 +39,9 @@
 //!
 //! let mut crc64ecma = CRC::crc64ecma();
 //!
-//! crc24.digest(b"hello");
+//! crc64ecma.digest(b"hello");
 //!
-//! assert_eq!([236, 83, 136, 71, 154, 124, 145, 63].to_vec(), crc24.get_crc_vec());
+//! assert_eq!([236, 83, 136, 71, 154, 124, 145, 63].to_vec(), crc64ecma.get_crc_vec());
 //! ```
 //!
 //! After getting a CRC value, you can still use the `digest` method to continue computing the next CRC values.
