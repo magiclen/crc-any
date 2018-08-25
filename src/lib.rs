@@ -84,16 +84,16 @@ impl CRC {
     }
 
     /// Digest some data.
-    pub fn digest(&mut self, data: &[u8]) {
+    pub fn digest<T: ?Sized + AsRef<[u8]>>(&mut self, data: &T) {
         let mut index: u8;
 
         if self.reflect || self.bits <= 8 {
-            for n in data {
+            for n in data.as_ref() {
                 index = (self.sum as u8) ^ n;
                 self.sum = (self.sum >> 8) ^ self.lookup_table[index as usize];
             }
         } else {
-            for n in data {
+            for n in data.as_ref() {
                 index = (self.sum >> ((self.bits - 8) as u64)) as u8 ^ n;
                 self.sum = (self.sum << 8) ^ self.lookup_table[index as usize];
             }
