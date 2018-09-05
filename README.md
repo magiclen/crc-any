@@ -10,7 +10,7 @@ To compute CRC values by providing the length of bits, expression, reflection, a
 
 You can use `create_crc` associated function to create a CRC instance by providing the length of bits, expression, reflection, an initial value and a final xor value. For example, if you want to compute a CRC-24 value.
 
-```
+```rust
 extern crate crc_any;
 
 use crc_any::CRC;
@@ -37,7 +37,7 @@ To simplify the usage, there are several common versions of CRC whose computing 
 
 For instance,
 
-```
+```rust
 extern crate crc_any;
 
 use crc_any::CRC;

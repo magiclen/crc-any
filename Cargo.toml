@@ -1,6 +1,6 @@
 [package]
 name = "crc-any"
-version = "1.1.0"
+version = "1.1.1"
 authors = ["Magic Len <len@magiclen.org>"]
 repository = "https://github.com/magiclen/crc-any"
 homepage = "https://magiclen.org/crc-any"
