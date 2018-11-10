@@ -16,5 +16,12 @@ appveyor = { repository = "magiclen/crc-any", branch = "master", service = "gith
 
 [dependencies]
 
+[dev-dependencies]
+criterion = "0.2.5"
+
 [features]
 develop = []
+
+[[bench]]
+name = "bench"
+harness = false
