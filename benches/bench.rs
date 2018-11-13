@@ -14,7 +14,7 @@ fn crc16_construct(c: &mut Criterion) {
 
 fn crc16_update_megabytes(c: &mut Criterion) {
     let mut crc = CRC::crc16ibm();
-    let bytes = Box::new([0u8; 1_000_000]);
+    let bytes = vec![0u8; 1_000_000];
     c.bench(
         "crc16_update_megabytes",
         Benchmark::new("crc16_update_megabytes", move |b| {
@@ -34,7 +34,7 @@ fn crc32_construct(c: &mut Criterion) {
 
 fn crc32_update_megabytes(c: &mut Criterion) {
     let mut crc = CRC::crc32ieee();
-    let bytes = Box::new([0u8; 1_000_000]);
+    let bytes = vec![0u8; 1_000_000];
     c.bench(
         "crc32_update_megabytes",
         Benchmark::new("crc32_update_megabytes", move |b| {
@@ -54,7 +54,7 @@ fn crc64_construct(c: &mut Criterion) {
 
 fn crc64_update_megabytes(c: &mut Criterion) {
     let mut crc = CRC::crc64iso();
-    let bytes = Box::new([0u8; 1_000_000]);
+    let bytes = vec![0u8; 1_000_000];
     c.bench(
         "crc64_update_megabytes",
         Benchmark::new("crc64_update_megabytes", move |b| {
