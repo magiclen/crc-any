@@ -7,6 +7,7 @@ use criterion::{Benchmark, Criterion, Throughput};
 
 fn crc16_construct(c: &mut Criterion) {
     c.bench_function("crc16_construct", |b| {
+        println!("crc16_construct");
         // CRC16 IBM
         b.iter(|| CRC::create_crc(0x000000000000A001, 16, 0x0000000000000000, 0x0000000000000000, true))
     });

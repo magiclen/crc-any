@@ -50,6 +50,7 @@ After getting a CRC value, you can still use the `digest` method to continue com
 */
 
 use std::mem::transmute;
+use std::fmt::{self, Formatter, Debug};
 
 /// This struct can help you compute a CRC value.
 pub struct CRC {
@@ -59,6 +60,21 @@ pub struct CRC {
     final_xor: u64,
     reflect: bool,
     special_case: u8,
+}
+
+impl Debug for CRC {
+    #[inline]
+    fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
+        if f.alternate() {
+            let debug_text = format!("CRC {{\n    lookup_table: {:#?},\n    sum: {},\n    bits: {},\n    final_xor: {:X},\n    reflect: {},\n    special_case: {}\n}}", self.lookup_table.as_ref(), self.sum, self.bits, self.final_xor, self.reflect, self.special_case);
+
+            f.pad(&debug_text)
+        } else {
+            let debug_text = format!("CRC {{ lookup_table: {:?}, sum: {}, bits: {}, final_xor: {:X}, reflect: {}, special_case: {} }}", self.lookup_table.as_ref(), self.sum, self.bits, self.final_xor, self.reflect, self.special_case);
+
+            f.pad(&debug_text)
+        }
+    }
 }
 
 impl CRC {
@@ -90,12 +106,12 @@ impl CRC {
         let mut index: u8;
 
         if self.reflect || self.bits <= 8 {
-            for n in data.as_ref() {
+            for &n in data.as_ref() {
                 index = (self.sum as u8) ^ n;
                 self.sum = (self.sum >> 8) ^ self.lookup_table[index as usize];
             }
         } else {
-            for n in data.as_ref() {
+            for &n in data.as_ref() {
                 index = (self.sum >> ((self.bits - 8) as u64)) as u8 ^ n;
                 self.sum = (self.sum << 8) ^ self.lookup_table[index as usize];
             }
@@ -107,7 +123,7 @@ impl CRC {
         if self.special_case == 1 {
             let sum = self.sum ^ self.final_xor;
             let mut new_sum = 0u64;
-            for i in 0..4u8 {
+            for i in 0..4u64 {
                 new_sum |= ((sum >> ((3 - i) * 8)) & 0xff) << (i * 8);
             }
 
