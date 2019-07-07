@@ -4,7 +4,7 @@ CRC Any
 [![Build Status](https://travis-ci.org/magiclen/crc-any.svg?branch=master)](https://travis-ci.org/magiclen/crc-any)
 [![Build status](https://ci.appveyor.com/api/projects/status/pnjmg58he731e8o1/branch/master?svg=true)](https://ci.appveyor.com/project/magiclen/crc-any/branch/master)
 
-To compute CRC values by providing the length of bits, expression, reflection, an initial value and a final xor value. It has built-in CRC-8-ATM, CRC-8-CDMA, CRC-16-IBM, CRC16-CCITT, CRC-32-IEEE, CRC-32-C, CRC-64-ISO and CRC-64-ECMA functions.
+To compute CRC values by providing the length of bits, expression, reflection, an initial value and a final xor value. It has many built-in CRC functions.
 
 ## Usage
 
@@ -15,24 +15,97 @@ extern crate crc_any;
 
 use crc_any::CRC;
 
-let mut crc24 = CRC::create_crc(0x0000000000864cfb, 24, 0x0000000000b704ce, 0x0000000000000000, false);
+let mut crc24 = CRC::create_crc(0x0000000000864CFB, 24, 0x0000000000B704CE, 0x0000000000000000, false);
 
 crc24.digest(b"hello");
 
-assert_eq!([71, 245, 138].to_vec(), crc24.get_crc_vec());
+assert_eq!([71, 245, 138].to_vec(), crc24.get_crc_vec_be());
+assert_eq!("0x47F58A", &crc24.to_string());
 ```
 
 To simplify the usage, there are several common versions of CRC whose computing functions are already built-in.
 
- * crc8(crc8atm)
- * crc8cdma
- * crc16(crc16ibm)
- * crc16ccitt(crcccitt)
- * crc32(crc32ieee, also called crc32b in `mhash`)
+ * crc3gsm
+ * crc4itu
+ * crc4interlaken
+ * crc5epc
+ * crc5itu
+ * crc5usb
+ * crc6cdma2000_a
+ * crc6cdma2000_b
+ * crc6darc
+ * crc6gsm
+ * crc6itu
+ * crc7
+ * crc7umts
+ * crc8
+ * crc8cdma2000
+ * crc8darc
+ * crc8dvb_s2
+ * crc8ebu
+ * crc8icode
+ * crc8itu
+ * crc8maxim
+ * crc8rohc
+ * crc8wcdma
+ * crc10
+ * crc10cdma2000
+ * crc10gsm
+ * crc11
+ * crc12
+ * crc12cdma2000
+ * crc12gsm
+ * crc13bbc
+ * crc14darc
+ * crc14gsm
+ * crc15can
+ * crc15mpt1327
+ * crc16
+ * crc16ccitt_false
+ * crc16aug_ccitt
+ * crc16cdma2000
+ * crc16dds_110
+ * crc16dect_r
+ * crc16dect_x
+ * crc16dnp
+ * crc16en_13757
+ * crc16genibus
+ * crc16maxim
+ * crc16mcrf4cc
+ * crc16riello
+ * crc16t10_dif
+ * crc16teledisk
+ * crc16tms13157
+ * crc16usb
+ * crc_a
+ * crc16kermit
+ * crc16modbus
+ * crc16_x25
+ * crc16xmodem
+ * crc17can
+ * crc21can
+ * crc24
+ * crc24ble
+ * crc24flexray_a
+ * crc24flexray_b
+ * crc24lte_a
+ * crc24lte_b
+ * crc24os9
+ * crc30cdma
+ * crc32
+   * It also called `crc32b` in `mhash`.
  * crc32mhash
    * `mhash` is a common library which has two weird versions of CRC32 called `crc32` and `crc32b`. `crc32` and `crc32mhash` in this module are `crc32b` and `crc32` in mhash respectively.
+ * crc32bzip2
  * crc32c
- * crc64(crc64ecma)
+ * crc32d
+ * crc32mpeg2
+ * crc32posix
+ * crc32q
+ * crc32jamcrc
+ * crc32xfer
+ * crc40gsm
+ * crc64
  * crc64iso
 
 For instance,
@@ -42,14 +115,25 @@ extern crate crc_any;
 
 use crc_any::CRC;
 
-let mut crc64ecma = CRC::crc64ecma();
+let mut crc64 = CRC::crc64();
 
-crc64ecma.digest(b"hello");
+crc64.digest(b"hello");
 
-assert_eq!([236, 83, 136, 71, 154, 124, 145, 63].to_vec(), crc64ecma.get_crc_vec());
+assert_eq!([236, 83, 136, 71, 154, 124, 145, 63].to_vec(), crc64.get_crc_vec_be());
+assert_eq!("0xEC5388479A7C913F", &crc64.to_string());
 ```
 
 After getting a CRC value, you can still use the `digest` method to continue computing the next CRC values.
+
+## No Std
+
+Enable the **no_std** feature to compile this crate without std.
+
+```toml
+[dependencies.crc-any]
+version = "*"
+features = ["no_std"]
+```
 
 ## Crates.io
 
