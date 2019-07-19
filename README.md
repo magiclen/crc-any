@@ -107,6 +107,7 @@ To simplify the usage, there are several common versions of CRC whose computing 
  * crc40gsm
  * crc64
  * crc64iso
+ * crc64jones
 
 For instance,
 

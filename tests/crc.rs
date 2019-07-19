@@ -770,3 +770,12 @@ fn crc64iso() {
 
     assert_eq!("0x649DB068ECA5B9DB", &crc.to_string());
 }
+
+#[test]
+fn crc64jones() {
+    let mut crc = CRC::crc64jones();
+
+    crc.digest(b"https://magiclen.org");
+
+    assert_eq!("0x4BE96FCDBAD0D303", &crc.to_string());
+}

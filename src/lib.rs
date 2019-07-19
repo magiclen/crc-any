@@ -104,6 +104,7 @@ To simplify the usage, there are several common versions of CRC whose computing 
  * crc40gsm
  * crc64
  * crc64iso
+ * crc64jones
 
 For instance,
 
@@ -734,5 +735,10 @@ impl CRC {
     #[inline]
     pub fn crc64iso() -> CRC {
         CRC::CRCu64(CRCu64::crc64iso())
+    }
+
+    #[inline]
+    pub fn crc64jones() -> CRC {
+        CRC::CRCu64(CRCu64::crc64jones())
     }
 }
