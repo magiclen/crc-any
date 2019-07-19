@@ -352,7 +352,7 @@ impl CRCu64 {
     }
 
     pub fn crc64jones() -> CRCu64 {
-//         Self::create_crc(0x95AC9329AC4BC9B5u64, 64, 0xFFFFFFFFFFFFFFFF, 0x0000000000000000, true)
+//         Self::create_crc(0x95AC9329AC4BC9B5u64, 64, 0x0000000000000000, 0x0000000000000000, true)
 
         let lookup_table = REF_64_95AC9329AC4BC9B5;
         Self::create_crc_with_exists_lookup_table(lookup_table, 64, 0x0000000000000000, 0x0000000000000000, true)
