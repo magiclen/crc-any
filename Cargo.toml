@@ -1,6 +1,6 @@
 [package]
 name = "crc-any"
-version = "2.1.0"
+version = "2.1.1"
 authors = ["Magic Len <len@magiclen.org>"]
 repository = "https://github.com/magiclen/crc-any"
 homepage = "https://magiclen.org/crc-any"
@@ -15,12 +15,12 @@ travis-ci = { repository = "magiclen/crc-any", branch = "master" }
 appveyor = { repository = "magiclen/crc-any", branch = "master", service = "github" }
 
 [dependencies]
+debug-helper =  "0.1"
 
 [dev-dependencies]
 bencher = "0.1.5"
 
 [features]
-no_std = []
 development = []
 
 [[bench]]

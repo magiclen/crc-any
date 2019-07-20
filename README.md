@@ -126,16 +126,6 @@ assert_eq!("0xEC5388479A7C913F", &crc64.to_string());
 
 After getting a CRC value, you can still use the `digest` method to continue computing the next CRC values.
 
-## No Std
-
-Enable the **no_std** feature to compile this crate without std.
-
-```toml
-[dependencies.crc-any]
-version = "*"
-features = ["no_std"]
-```
-
 ## Crates.io
 
 https://crates.io/crates/crc-any

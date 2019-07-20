@@ -122,36 +122,23 @@ assert_eq!("0xEC5388479A7C913F", &crc64.to_string());
 ```
 
 After getting a CRC value, you can still use the `digest` method to continue computing the next CRC values.
-
-## No Std
-
-Enable the **no_std** feature to compile this crate without std.
-
-```toml
-[dependencies.crc-any]
-version = "*"
-features = ["no_std"]
-```
 */
 
-#![cfg_attr(feature = "no_std", no_std)]
+#![no_std]
 
-#[cfg(feature = "no_std")]
 #[macro_use]
 extern crate alloc;
+
+#[macro_use]
+extern crate debug_helper;
 
 mod crc_u8;
 mod crc_u16;
 mod crc_u32;
 mod crc_u64;
 
-#[cfg(not(feature = "no_std"))]
-use std::fmt::{self, Formatter, Display};
-
-#[cfg(feature = "no_std")]
 use alloc::vec::Vec;
 
-#[cfg(feature = "no_std")]
 use alloc::fmt::{self, Formatter, Display};
 
 pub use crc_u8::CRCu8;

@@ -1,10 +1,4 @@
-#[cfg(not(feature = "no_std"))]
-use std::fmt::{self, Formatter, Debug, Display};
-
-#[cfg(feature = "no_std")]
 use alloc::vec::Vec;
-
-#[cfg(feature = "no_std")]
 use alloc::fmt::{self, Formatter, Debug, Display};
 
 /// This struct can help you compute a CRC-16 (or CRC-x where **x** is under `16`) value.
@@ -26,25 +20,15 @@ impl Debug for CRCu16 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
         if self.by_table {
-            if f.alternate() {
-                let debug_text = format!("CRCu16 {{\n    lookup_table: {:#?},\n    sum: 0x{:04X},\n    bits: {},\n    initial: 0x{:04X},\n    final_xor: 0x{:04X},\n    reflect: {},\n    reorder: {}\n}}", self.lookup_table.as_ref(), self.sum, self.bits, self.initial, self.final_xor, self.reflect, self.reorder);
+            let data =  if f.alternate() {
+                format!("{:#?}", self.lookup_table.as_ref())
+            }else {
+                format!("{:?}", self.lookup_table.as_ref())
+            };
 
-                f.pad(&debug_text)
-            } else {
-                let debug_text = format!("CRCu16 {{ lookup_table: {:?}, sum: 0x{:04X}, bits: {}, initial: 0x{:04X}, final_xor: 0x{:04X}, reflect: {}, reorder: {} }}", self.lookup_table.as_ref(), self.sum, self.bits, self.initial, self.final_xor, self.reflect, self.reorder);
-
-                f.pad(&debug_text)
-            }
+            impl_debug_for_struct!(CRCu64, f, self, (.lookup_table, "{}", data), (.sum, "0x{:04X}", self.sum), .bits, (.initial, "0x{:04X}", self.initial), (.final_xor, "0x{:04X}", self.final_xor), .reflect, .reorder);
         } else {
-            if f.alternate() {
-                let debug_text = format!("CRCu16 {{\n    poly: 0x{:04X},\n    sum: 0x{:04X},\n    bits: {},\n    initial: 0x{:04X},\n    final_xor: 0x{:04X},\n    reflect: {},\n    reorder: {}\n}}", self.poly, self.sum, self.bits, self.initial, self.final_xor, self.reflect, self.reorder);
-
-                f.pad(&debug_text)
-            } else {
-                let debug_text = format!("CRCu16 {{ poly: 0x{:04X}, sum: 0x{:04X}, bits: {}, initial: 0x{:04X}, final_xor: 0x{:04X}, reflect: {}, reorder: {} }}", self.poly, self.sum, self.bits, self.initial, self.final_xor, self.reflect, self.reorder);
-
-                f.pad(&debug_text)
-            }
+            impl_debug_for_struct!(CRCu64, f, self, (.poly, "0x{:04X}", self.poly), (.sum, "0x{:04X}", self.sum), .bits, (.initial, "0x{:04X}", self.initial), (.final_xor, "0x{:04X}", self.final_xor), .reflect, .reorder);
         }
     }
 }
