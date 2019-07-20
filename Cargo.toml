@@ -15,7 +15,7 @@ travis-ci = { repository = "magiclen/crc-any", branch = "master" }
 appveyor = { repository = "magiclen/crc-any", branch = "master", service = "github" }
 
 [dependencies]
-debug-helper =  "0.1"
+debug-helper =  "0.2"
 
 [dev-dependencies]
 bencher = "0.1.5"
