@@ -1,4 +1,5 @@
-use alloc::fmt::{self, Formatter, Debug, Display};
+#[cfg(feature = "default")]
+use alloc::fmt::{self, Formatter, Display, Debug};
 
 /// This struct can help you compute a CRC-8 (or CRC-x where **x** is under `8`) value.
 pub struct CRCu8 {
@@ -6,6 +7,7 @@ pub struct CRCu8 {
     poly: u8,
     lookup_table: [u8; 256],
     sum: u8,
+    #[cfg(feature = "default")]
     pub(crate) bits: u8,
     high_bit: u8,
     mask: u8,
@@ -14,6 +16,7 @@ pub struct CRCu8 {
     reflect: bool,
 }
 
+#[cfg(feature = "default")]
 impl Debug for CRCu8 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
@@ -25,6 +28,7 @@ impl Debug for CRCu8 {
     }
 }
 
+#[cfg(feature = "default")]
 impl Display for CRCu8 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
@@ -77,6 +81,7 @@ impl CRCu8 {
             poly,
             lookup_table,
             sum,
+            #[cfg(feature = "default")]
             bits,
             high_bit,
             mask,
