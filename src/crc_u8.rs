@@ -1,4 +1,4 @@
-#[cfg(feature = "default")]
+#[cfg(feature = "alloc")]
 use alloc::fmt::{self, Formatter, Display, Debug};
 
 /// This struct can help you compute a CRC-8 (or CRC-x where **x** is under `8`) value.
@@ -7,7 +7,7 @@ pub struct CRCu8 {
     poly: u8,
     lookup_table: [u8; 256],
     sum: u8,
-    #[cfg(feature = "default")]
+    #[cfg(any(feature = "alloc", feature = "heapless"))]
     pub(crate) bits: u8,
     high_bit: u8,
     mask: u8,
@@ -16,7 +16,7 @@ pub struct CRCu8 {
     reflect: bool,
 }
 
-#[cfg(feature = "default")]
+#[cfg(feature = "alloc")]
 impl Debug for CRCu8 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
@@ -28,7 +28,7 @@ impl Debug for CRCu8 {
     }
 }
 
-#[cfg(feature = "default")]
+#[cfg(feature = "alloc")]
 impl Display for CRCu8 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
@@ -81,7 +81,7 @@ impl CRCu8 {
             poly,
             lookup_table,
             sum,
-            #[cfg(feature = "default")]
+            #[cfg(any(feature = "alloc", feature = "heapless"))]
             bits,
             high_bit,
             mask,
@@ -366,11 +366,12 @@ impl CRCu8 {
     }
 }
 
-#[cfg(all(feature = "development", not(feature = "no_std"), test))]
+#[cfg(all(feature = "development", test))]
 mod tests {
     use super::CRCu8;
 
-    use std::fmt::Write;
+    use alloc::fmt::Write;
+    use alloc::string::String;
 
     #[test]
     fn print_lookup_table() {

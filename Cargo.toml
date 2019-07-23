@@ -1,7 +1,8 @@
 [package]
 name = "crc-any"
-version = "2.1.4"
+version = "2.2.0"
 authors = ["Magic Len <len@magiclen.org>"]
+edition = "2018"
 repository = "https://github.com/magiclen/crc-any"
 homepage = "https://magiclen.org/crc-any"
 keywords = ["hash", "crc", "crc16", "crc32", "crc64"]
@@ -20,12 +21,18 @@ appveyor = { repository = "magiclen/crc-any", branch = "master", service = "gith
 version = "0.3"
 optional = true
 
+[dependencies.heapless]
+version = "0.5"
+optional = true
+
 [dev-dependencies]
 bencher = "0.1.5"
 
 [features]
-default = ["debug-helper"]
-development = []
+default = ["alloc"]
+alloc = ["debug-helper"]
+std = []
+development = ["std"]
 
 [[bench]]
 name = "bench"

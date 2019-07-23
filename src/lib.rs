@@ -7,8 +7,7 @@ To compute CRC values by providing the length of bits, expression, reflection, a
 
 You can use `create_crc` associated function to create a CRC instance by providing the length of bits, expression, reflection, an initial value and a final xor value. For example, if you want to compute a CRC-24 value.
 
-```rust
-
+```rust,ignore
 extern crate crc_any;
 
 use crc_any::CRC;
@@ -109,7 +108,7 @@ To simplify the usage, there are several common versions of CRC whose computing 
 
 For instance,
 
-```rust
+```rust,ignore
 extern crate crc_any;
 
 use crc_any::CRC;
@@ -123,27 +122,51 @@ assert_eq!("0xEC5388479A7C913F", &crc64.to_string());
 ```
 
 After getting a CRC value, you can still use the `digest` method to continue computing the next CRC values.
+
+## Heapless Support
+
+To make sure this crate will not use heap memory allocation, you can disable the default features.
+
+```toml
+[dependencies.crc-any]
+version = "*"
+default-features = false
+```
+
+After doing that, the `get_crc_vec_be` and `get_crc_vec_le` methods can not be used. But if you still need this crate to return a `Vec` without dynamic allocation, you can enable the `heapless` feature to make the `get_crc_heapless_vec_be` and `get_crc_heapless_vec_be` methods available.
+
+```toml
+[dependencies.crc-any]
+version = "*"
+default-features = false
+features = ["heapless"]
+```
 */
 
-#![no_std]
+#![cfg_attr(not(feature = "std"), no_std)]
 
-#[cfg(feature = "default")]
-#[macro_use] extern crate alloc;
+#[cfg(feature = "alloc")]
+#[macro_use]
+extern crate alloc;
 
-#[cfg(feature = "default")]
-#[macro_use] extern crate debug_helper;
+#[cfg(feature = "alloc")]
+#[macro_use]
+extern crate debug_helper;
 
-#[cfg(feature = "default")]
+#[cfg(feature = "alloc")]
 use alloc::vec::Vec;
-
-#[cfg(feature = "default")]
+#[cfg(feature = "alloc")]
 use alloc::fmt::{self, Formatter, Display};
+
+#[cfg(feature = "heapless")]
+use heapless::Vec as HeaplessVec;
+#[cfg(feature = "heapless")]
+use heapless::consts::U8;
 
 mod crc_u8;
 mod crc_u16;
 mod crc_u32;
 mod crc_u64;
-
 
 pub use crc_u8::CRCu8;
 pub use crc_u16::CRCu16;
@@ -151,7 +174,7 @@ pub use crc_u32::CRCu32;
 pub use crc_u64::CRCu64;
 
 /// This struct can help you compute a CRC value.
-#[cfg_attr(feature = "default", derive(Debug))]
+#[cfg_attr(feature = "alloc", derive(Debug))]
 pub enum CRC {
     CRCu8(CRCu8),
     CRCu16(CRCu16),
@@ -159,7 +182,7 @@ pub enum CRC {
     CRCu64(CRCu64),
 }
 
-#[cfg(feature = "default")]
+#[cfg(feature = "alloc")]
 impl Display for CRC {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
@@ -253,10 +276,12 @@ impl CRC {
             CRC::CRCu64(crc) => crc.get_crc(),
         }
     }
+}
 
+#[cfg(feature = "alloc")]
+impl CRC {
     /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
     #[inline]
-    #[cfg(feature = "default")]
     pub fn get_crc_vec_le(&mut self) -> Vec<u8> {
         match self {
             CRC::CRCu8(crc) => {
@@ -274,7 +299,6 @@ impl CRC {
 
     /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
     #[inline]
-    #[cfg(feature = "default")]
     pub fn get_crc_vec_be(&mut self) -> Vec<u8> {
         match self {
             CRC::CRCu8(crc) => {
@@ -288,6 +312,77 @@ impl CRC {
             CRC::CRCu32(crc) => crc.get_crc_vec_be(),
             CRC::CRCu64(crc) => crc.get_crc_vec_be(),
         }
+    }
+}
+
+#[cfg(feature = "heapless")]
+impl CRC {
+    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    pub fn get_crc_heapless_vec_le(&mut self) -> HeaplessVec<u8, U8> {
+        let mut vec = HeaplessVec::new();
+
+        let bits = match self {
+            CRC::CRCu8(crc) => {
+                crc.bits as f64
+            }
+            CRC::CRCu16(crc) => {
+                crc.bits as f64
+            }
+            CRC::CRCu32(crc) => {
+                crc.bits as f64
+            }
+            CRC::CRCu64(crc) => {
+                crc.bits as f64
+            }
+        };
+
+        let e = ((bits + 7f64) / 8f64) as u64;
+
+        let e_dec = e - 1;
+
+        let o = e_dec * 8;
+
+        let crc = self.get_crc();
+
+        for i in 0..e {
+            vec.push((crc << (e_dec - i) * 8 >> o) as u8).unwrap();
+        }
+
+        vec
+    }
+
+    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    pub fn get_crc_heapless_vec_be(&mut self) -> HeaplessVec<u8, U8> {
+        let mut vec = HeaplessVec::new();
+
+        let bits = match self {
+            CRC::CRCu8(crc) => {
+                crc.bits as f64
+            }
+            CRC::CRCu16(crc) => {
+                crc.bits as f64
+            }
+            CRC::CRCu32(crc) => {
+                crc.bits as f64
+            }
+            CRC::CRCu64(crc) => {
+                crc.bits as f64
+            }
+        };
+
+        let e = ((bits + 7f64) / 8f64) as u64;
+
+        let e_dec = e - 1;
+
+        let o = e_dec * 8;
+
+        let crc = self.get_crc();
+
+        for i in 0..e {
+            vec.push((crc << i * 8 >> o) as u8).unwrap();
+        }
+
+        vec
     }
 }
 

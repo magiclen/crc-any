@@ -126,17 +126,23 @@ assert_eq!("0xEC5388479A7C913F", &crc64.to_string());
 
 After getting a CRC value, you can still use the `digest` method to continue computing the next CRC values.
 
-## Allocation Requirement
+## Heapless Support
 
-To compile without any allocation requirement, and no dependency on "debug-helper",
-disable default features
+To make sure this crate will not use heap memory allocation, you can disable the default features.
 
-In Cargo.toml
-
-```
+```toml
 [dependencies.crc-any]
-version = "^2.1.3"
+version = "*"
 default-features = false
+```
+
+After doing that, the `get_crc_vec_be` and `get_crc_vec_le` methods can not be used. But if you still need this crate to return a `Vec` without dynamic allocation, you can enable the `heapless` feature to make the `get_crc_heapless_vec_be` and `get_crc_heapless_vec_be` methods available.
+
+```toml
+[dependencies.crc-any]
+version = "*"
+default-features = false
+features = ["heapless"]
 ```
 
 ## Crates.io

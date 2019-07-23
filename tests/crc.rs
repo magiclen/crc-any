@@ -1,3 +1,5 @@
+#![cfg(feature = "alloc")]
+
 extern crate crc_any;
 
 use crc_any::CRC;
