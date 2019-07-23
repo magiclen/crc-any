@@ -126,6 +126,19 @@ assert_eq!("0xEC5388479A7C913F", &crc64.to_string());
 
 After getting a CRC value, you can still use the `digest` method to continue computing the next CRC values.
 
+## Allocation Requirement
+
+To compile without any allocation requirement, and no dependency on "debug-helper",
+disable default features
+
+In Cargo.toml
+
+```
+[dependencies.crc-any]
+version = "^2.1.3"
+default-features = false
+```
+
 ## Crates.io
 
 https://crates.io/crates/crc-any

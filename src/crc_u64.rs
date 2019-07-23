@@ -1,5 +1,7 @@
+#[cfg(feature = "default")]
 use alloc::vec::Vec;
-use alloc::fmt::{self, Formatter, Debug, Display};
+#[cfg(feature = "default")]
+use alloc::fmt::{self, Formatter, Display, Debug};
 
 /// This struct can help you compute a CRC-64 (or CRC-x where **x** is under `64`) value.
 pub struct CRCu64 {
@@ -16,6 +18,7 @@ pub struct CRCu64 {
     reorder: bool,
 }
 
+#[cfg(feature = "default")]
 impl Debug for CRCu64 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
@@ -27,6 +30,7 @@ impl Debug for CRCu64 {
     }
 }
 
+#[cfg(feature = "default")]
 impl Display for CRCu64 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
@@ -216,6 +220,7 @@ impl CRCu64 {
     }
 
     /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+#[cfg(feature = "default")]
     pub fn get_crc_vec_le(&mut self) -> Vec<u8> {
         let e = ((self.bits as f64 + 7f64) / 8f64) as u64;
 
@@ -235,6 +240,7 @@ impl CRCu64 {
     }
 
     /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+#[cfg(feature = "default")]
     pub fn get_crc_vec_be(&mut self) -> Vec<u8> {
         let e = ((self.bits as f64 + 7f64) / 8f64) as u64;
 

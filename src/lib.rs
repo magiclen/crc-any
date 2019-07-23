@@ -8,6 +8,7 @@ To compute CRC values by providing the length of bits, expression, reflection, a
 You can use `create_crc` associated function to create a CRC instance by providing the length of bits, expression, reflection, an initial value and a final xor value. For example, if you want to compute a CRC-24 value.
 
 ```rust
+
 extern crate crc_any;
 
 use crc_any::CRC;
@@ -126,20 +127,23 @@ After getting a CRC value, you can still use the `digest` method to continue com
 
 #![no_std]
 
-#[macro_use]
-extern crate alloc;
+#[cfg(feature = "default")]
+#[macro_use] extern crate alloc;
 
-#[macro_use]
-extern crate debug_helper;
+#[cfg(feature = "default")]
+#[macro_use] extern crate debug_helper;
+
+#[cfg(feature = "default")]
+use alloc::vec::Vec;
+
+#[cfg(feature = "default")]
+use alloc::fmt::{self, Formatter, Display};
 
 mod crc_u8;
 mod crc_u16;
 mod crc_u32;
 mod crc_u64;
 
-use alloc::vec::Vec;
-
-use alloc::fmt::{self, Formatter, Display};
 
 pub use crc_u8::CRCu8;
 pub use crc_u16::CRCu16;
@@ -147,7 +151,7 @@ pub use crc_u32::CRCu32;
 pub use crc_u64::CRCu64;
 
 /// This struct can help you compute a CRC value.
-#[derive(Debug)]
+#[cfg_attr(feature = "default", derive(Debug))]
 pub enum CRC {
     CRCu8(CRCu8),
     CRCu16(CRCu16),
@@ -155,6 +159,7 @@ pub enum CRC {
     CRCu64(CRCu64),
 }
 
+#[cfg(feature = "default")]
 impl Display for CRC {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
@@ -251,6 +256,7 @@ impl CRC {
 
     /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
     #[inline]
+    #[cfg(feature = "default")]
     pub fn get_crc_vec_le(&mut self) -> Vec<u8> {
         match self {
             CRC::CRCu8(crc) => {
@@ -268,6 +274,7 @@ impl CRC {
 
     /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
     #[inline]
+    #[cfg(feature = "default")]
     pub fn get_crc_vec_be(&mut self) -> Vec<u8> {
         match self {
             CRC::CRCu8(crc) => {
