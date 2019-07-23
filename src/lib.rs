@@ -133,7 +133,7 @@ version = "*"
 default-features = false
 ```
 
-After doing that, the `get_crc_vec_be` and `get_crc_vec_le` methods can not be used. But if you still need this crate to return a `Vec` without dynamic allocation, you can enable the `heapless` feature to make the `get_crc_heapless_vec_be` and `get_crc_heapless_vec_be` methods available.
+After doing that, the `get_crc_vec_be` and `get_crc_vec_le` methods can not be used. But if you still need this crate to return a `Vec` without dynamic allocation, you can enable the `heapless` feature to make the `get_crc_heapless_vec_be` and `get_crc_heapless_vec_le` methods available.
 
 ```toml
 [dependencies.crc-any]
