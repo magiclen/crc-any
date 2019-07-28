@@ -1,6 +1,6 @@
 [package]
 name = "crc-any"
-version = "2.2.1"
+version = "2.2.2"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2018"
 repository = "https://github.com/magiclen/crc-any"
@@ -11,9 +11,9 @@ description= "To compute CRC values by providing the length of bits, expression,
 readme = "README.md"
 license = "MIT"
 
-[badges]
-travis-ci = { repository = "magiclen/crc-any", branch = "master" }
-appveyor = { repository = "magiclen/crc-any", branch = "master", service = "github" }
+[badges.travis-ci]
+repository = "magiclen/crc-any"
+branch = "master"
 
 [dependencies]
 
