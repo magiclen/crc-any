@@ -2,7 +2,7 @@
 
 extern crate crc_any;
 
-use crc_any::{CRC, CRCu16, CRCu32, CRCu64};
+use crc_any::{CRCu16, CRCu32, CRCu64, CRC};
 
 #[test]
 fn crc() {

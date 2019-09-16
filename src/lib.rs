@@ -154,27 +154,29 @@ extern crate alloc;
 extern crate debug_helper;
 
 #[cfg(feature = "alloc")]
-use alloc::vec::Vec;
+use alloc::fmt::{self, Display, Formatter};
 #[cfg(feature = "alloc")]
-use alloc::fmt::{self, Formatter, Display};
+use alloc::vec::Vec;
 
-#[cfg(feature = "heapless")]
-use heapless::Vec as HeaplessVec;
 #[cfg(feature = "heapless")]
 use heapless::consts::U8;
+#[cfg(feature = "heapless")]
+use heapless::Vec as HeaplessVec;
 
-mod crc_u8;
+mod constants;
 mod crc_u16;
 mod crc_u32;
 mod crc_u64;
+mod crc_u8;
 
-pub use crc_u8::CRCu8;
 pub use crc_u16::CRCu16;
 pub use crc_u32::CRCu32;
 pub use crc_u64::CRCu64;
+pub use crc_u8::CRCu8;
 
 /// This struct can help you compute a CRC value.
 #[cfg_attr(feature = "alloc", derive(Debug))]
+#[allow(clippy::large_enum_variant)]
 pub enum CRC {
     CRCu8(CRCu8),
     CRCu16(CRCu16),
@@ -270,9 +272,9 @@ impl CRC {
     #[inline]
     pub fn get_crc(&mut self) -> u64 {
         match self {
-            CRC::CRCu8(crc) => crc.get_crc() as u64,
-            CRC::CRCu16(crc) => crc.get_crc() as u64,
-            CRC::CRCu32(crc) => crc.get_crc() as u64,
+            CRC::CRCu8(crc) => u64::from(crc.get_crc()),
+            CRC::CRCu16(crc) => u64::from(crc.get_crc()),
+            CRC::CRCu32(crc) => u64::from(crc.get_crc()),
             CRC::CRCu64(crc) => crc.get_crc(),
         }
     }
@@ -322,18 +324,10 @@ impl CRC {
         let mut vec = HeaplessVec::new();
 
         let bits = match self {
-            CRC::CRCu8(crc) => {
-                crc.bits as f64
-            }
-            CRC::CRCu16(crc) => {
-                crc.bits as f64
-            }
-            CRC::CRCu32(crc) => {
-                crc.bits as f64
-            }
-            CRC::CRCu64(crc) => {
-                crc.bits as f64
-            }
+            CRC::CRCu8(crc) => f64::from(crc.bits),
+            CRC::CRCu16(crc) => f64::from(crc.bits),
+            CRC::CRCu32(crc) => f64::from(crc.bits),
+            CRC::CRCu64(crc) => f64::from(crc.bits),
         };
 
         let e = ((bits + 7f64) / 8f64) as u64;
@@ -345,7 +339,7 @@ impl CRC {
         let crc = self.get_crc();
 
         for i in 0..e {
-            vec.push((crc << (e_dec - i) * 8 >> o) as u8).unwrap();
+            vec.push((crc << ((e_dec - i) * 8) >> o) as u8).unwrap();
         }
 
         vec
@@ -356,18 +350,10 @@ impl CRC {
         let mut vec = HeaplessVec::new();
 
         let bits = match self {
-            CRC::CRCu8(crc) => {
-                crc.bits as f64
-            }
-            CRC::CRCu16(crc) => {
-                crc.bits as f64
-            }
-            CRC::CRCu32(crc) => {
-                crc.bits as f64
-            }
-            CRC::CRCu64(crc) => {
-                crc.bits as f64
-            }
+            CRC::CRCu8(crc) => f64::from(crc.bits),
+            CRC::CRCu16(crc) => f64::from(crc.bits),
+            CRC::CRCu32(crc) => f64::from(crc.bits),
+            CRC::CRCu64(crc) => f64::from(crc.bits),
         };
 
         let e = ((bits + 7f64) / 8f64) as u64;
@@ -379,7 +365,7 @@ impl CRC {
         let crc = self.get_crc();
 
         for i in 0..e {
-            vec.push((crc << i * 8 >> o) as u8).unwrap();
+            vec.push((crc << (i * 8) >> o) as u8).unwrap();
         }
 
         vec

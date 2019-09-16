@@ -84,7 +84,9 @@ fn crc32_update_megabytes(bencher: &mut Bencher) {
 }
 
 fn crc64_construct(bencher: &mut Bencher) {
-    bencher.iter(|| CRC::create_crc(0x42F0E1EBA9EA3693, 64, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, false))
+    bencher.iter(|| {
+        CRC::create_crc(0x42F0E1EBA9EA3693, 64, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, false)
+    })
 }
 
 fn crc64_update_megabytes(bencher: &mut Bencher) {
