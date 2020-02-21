@@ -10,7 +10,7 @@ use heapless::Vec as HeaplessVec;
 
 use crate::constants::crc_u64::*;
 
-/// This struct can help you compute a CRC-64 (or CRC-x where **x** is under `64`) value.
+/// This struct can help you compute a CRC-64 (or CRC-x where **x** is equal or less than `64`) value.
 pub struct CRCu64 {
     by_table: bool,
     poly: u64,
@@ -374,8 +374,19 @@ impl CRCu64 {
 
 #[allow(clippy::unreadable_literal)]
 impl CRCu64 {
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0xD4164FC646|0x0004820009|0x0000000000|false|0xFFFFFFFFFF|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu64;
+    /// let mut crc = CRCu64::crc40gsm();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0xD4164FC646", &crc.to_string());
+    /// ```
     pub fn crc40gsm() -> CRCu64 {
-        //         Self::create_crc(0x0000000004820009u64, 40, 0x0000000000000000, 0x000000FFFFFFFFFF, false)
+        // Self::create_crc(0x0000000004820009u64, 40, 0x0000000000000000, 0x000000FFFFFFFFFF, false)
 
         let lookup_table = NO_REF_40_0000000004820009;
         Self::create_crc_with_exists_lookup_table(
@@ -387,7 +398,66 @@ impl CRCu64 {
         )
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x6C40DF5F0B497347|0x42F0E1EBA9EA3693|0x0000000000000000|false|0x0000000000000000|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu64;
+    /// let mut crc = CRCu64::crc64();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x6C40DF5F0B497347", &crc.to_string());
+    /// ```
     pub fn crc64() -> CRCu64 {
+        // Self::create_crc(0x42F0E1EBA9EA3693, 64, 0x0000000000000000, 0x0000000000000000, false)
+
+        let lookup_table = NO_REF_64_42F0E1EBA9EA3693;
+        Self::create_crc_with_exists_lookup_table(
+            lookup_table,
+            64,
+            0x0000000000000000,
+            0x0000000000000000,
+            false,
+        )
+    }
+
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0xB90956C775A41001|0x000000000000001B (rev: 0xD800000000000000)|0xFFFFFFFFFFFFFFFF|true|0xFFFFFFFFFFFFFFFF|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu64;
+    /// let mut crc = CRCu64::crc64iso();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0xB90956C775A41001", &crc.to_string());
+    /// ```
+    pub fn crc64iso() -> CRCu64 {
+        // Self::create_crc(0xD800000000000000, 64, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, true)
+
+        let lookup_table = REF_64_D800000000000000;
+        Self::create_crc_with_exists_lookup_table(
+            lookup_table,
+            64,
+            0xFFFFFFFFFFFFFFFF,
+            0xFFFFFFFFFFFFFFFF,
+            true,
+        )
+    }
+
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x62EC59E3F1A4F00A|0x42F0E1EBA9EA3693|0xFFFFFFFFFFFFFFFF|false|0xFFFFFFFFFFFFFFFF|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu64;
+    /// let mut crc = CRCu64::crc64we();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x62EC59E3F1A4F00A", &crc.to_string());
+    /// ```
+    pub fn crc64we() -> CRCu64 {
         // Self::create_crc(0x42F0E1EBA9EA3693, 64, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, false)
 
         let lookup_table = NO_REF_64_42F0E1EBA9EA3693;
@@ -400,21 +470,19 @@ impl CRCu64 {
         )
     }
 
-    pub fn crc64iso() -> CRCu64 {
-        // Self::create_crc(0xD800000000000000u64, 64, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, true)
-
-        let lookup_table = REF_64_D800000000000000;
-        Self::create_crc_with_exists_lookup_table(
-            lookup_table,
-            64,
-            0xFFFFFFFFFFFFFFFF,
-            0xFFFFFFFFFFFFFFFF,
-            true,
-        )
-    }
-
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0xE9C6D914C4B8D9CA|0xAD93D23594C935A9 (rev: 0x95AC9329AC4BC9B5)|0x0000000000000000|true|0x0000000000000000|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu64;
+    /// let mut crc = CRCu64::crc64jones();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0xE9C6D914C4B8D9CA", &crc.to_string());
+    /// ```
     pub fn crc64jones() -> CRCu64 {
-        //         Self::create_crc(0x95AC9329AC4BC9B5u64, 64, 0x0000000000000000, 0x0000000000000000, true)
+        // Self::create_crc(0x95AC9329AC4BC9B5, 64, 0x0000000000000000, 0x0000000000000000, true)
 
         let lookup_table = REF_64_95AC9329AC4BC9B5;
         Self::create_crc_with_exists_lookup_table(

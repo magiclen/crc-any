@@ -10,8 +10,8 @@ fn crc() {
 
     crc.digest(b"https://magiclen.org");
 
-    assert_eq!(vec![19, 252, 181, 71, 9, 46, 100, 182], crc.get_crc_heapless_vec_be().to_vec());
-    assert_eq!(vec![182, 100, 46, 9, 71, 181, 252, 19], crc.get_crc_heapless_vec_le().to_vec());
+    assert_eq!(vec![46, 219, 104, 85, 36, 10, 96, 248], crc.get_crc_heapless_vec_be().to_vec());
+    assert_eq!(vec![248, 96, 10, 36, 85, 104, 219, 46], crc.get_crc_heapless_vec_le().to_vec());
 
     let mut crc = CRC::crc32();
 
@@ -68,8 +68,8 @@ fn crc_u64() {
 
     crc.digest(b"https://magiclen.org");
 
-    assert_eq!(vec![19, 252, 181, 71, 9, 46, 100, 182], crc.get_crc_heapless_vec_be().to_vec());
-    assert_eq!(vec![182, 100, 46, 9, 71, 181, 252, 19], crc.get_crc_heapless_vec_le().to_vec());
+    assert_eq!(vec![46, 219, 104, 85, 36, 10, 96, 248], crc.get_crc_heapless_vec_be().to_vec());
+    assert_eq!(vec![248, 96, 10, 36, 85, 104, 219, 46], crc.get_crc_heapless_vec_le().to_vec());
 
     let mut crc = CRCu64::crc40gsm();
 

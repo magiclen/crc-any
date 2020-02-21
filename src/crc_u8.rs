@@ -3,7 +3,7 @@ use alloc::fmt::{self, Debug, Display, Formatter};
 
 use crate::constants::crc_u8::*;
 
-/// This struct can help you compute a CRC-8 (or CRC-x where **x** is under `8`) value.
+/// This struct can help you compute a CRC-8 (or CRC-x where **x** is equal or less than `8`) value.
 pub struct CRCu8 {
     by_table: bool,
     poly: u8,
@@ -253,58 +253,212 @@ impl CRCu8 {
 
 #[allow(clippy::unreadable_literal)]
 impl CRCu8 {
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x4|0x3|0x0|false|0x7|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc3gsm();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x4", &crc.to_string());
+    /// ```
     pub fn crc3gsm() -> CRCu8 {
         Self::create_crc(0x03, 3, 0x00, 0x07, false)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x7|0x3 (rev: 0xC)|0x0|true|0x0|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc4itu();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x7", &crc.to_string());
+    /// ```
     pub fn crc4itu() -> CRCu8 {
         Self::create_crc(0x0C, 4, 0x00, 0x00, true)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0xB|0x3|0xF|false|0xF|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc4interlaken();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0xB", &crc.to_string());
+    /// ```
     pub fn crc4interlaken() -> CRCu8 {
         Self::create_crc(0x03, 4, 0x0F, 0x0F, false)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x00|0x09|0x09|false|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc5epc();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x00", &crc.to_string());
+    /// ```
     pub fn crc5epc() -> CRCu8 {
-        Self::create_crc(0x09, 5, 0x00, 0x00, false)
+        Self::create_crc(0x09, 5, 0x09, 0x00, false)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x07|0x15 (rev: 0x15)|0x00|true|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc5itu();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x07", &crc.to_string());
+    /// ```
     pub fn crc5itu() -> CRCu8 {
         Self::create_crc(0x15, 5, 0x00, 0x00, true)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x19|0x05 (rev: 0x14)|0x1F|true|0x1F|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc5usb();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x19", &crc.to_string());
+    /// ```
     pub fn crc5usb() -> CRCu8 {
         Self::create_crc(0x14, 5, 0x1F, 0x1F, true)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x0D|0x27|0x3F|false|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc6cdma2000_a();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x0D", &crc.to_string());
+    /// ```
     pub fn crc6cdma2000_a() -> CRCu8 {
         Self::create_crc(0x27, 6, 0x3f, 0x00, false)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x3B|0x07|0x3F|false|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc6cdma2000_b();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x3B", &crc.to_string());
+    /// ```
     pub fn crc6cdma2000_b() -> CRCu8 {
         Self::create_crc(0x07, 6, 0x3f, 0x00, false)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x26|0x19 (rev: 0x26)|0x00|true|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc6darc();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x26", &crc.to_string());
+    /// ```
     pub fn crc6darc() -> CRCu8 {
         Self::create_crc(0x26, 6, 0x00, 0x00, true)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x13|0x2F|0x00|false|0x3F|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc6gsm();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x13", &crc.to_string());
+    /// ```
     pub fn crc6gsm() -> CRCu8 {
         Self::create_crc(0x2F, 6, 0x00, 0x3F, false)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x06|0x03 (0x30)|0x00|true|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc6itu();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x06", &crc.to_string());
+    /// ```
     pub fn crc6itu() -> CRCu8 {
         Self::create_crc(0x30, 6, 0x00, 0x00, true)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x75|0x09|0x00|false|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc7();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x75", &crc.to_string());
+    /// ```
     pub fn crc7() -> CRCu8 {
         Self::create_crc(0x09, 7, 0x00, 0x00, false)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x61|0x45|0x00|false|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc7umts();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x61", &crc.to_string());
+    /// ```
     pub fn crc7umts() -> CRCu8 {
         Self::create_crc(0x45, 7, 0x00, 0x00, false)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0xF4|0x07|0x00|false|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc8();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0xF4", &crc.to_string());
+    /// ```
     pub fn crc8() -> CRCu8 {
         // Self::create_crc(0x07, 8, 0x00, 0x00, false)
 
@@ -312,6 +466,17 @@ impl CRCu8 {
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0x00, 0x00, false)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0xDA|0x9B|0xFF|false|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc8cdma2000();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0xDA", &crc.to_string());
+    /// ```
     pub fn crc8cdma2000() -> CRCu8 {
         // Self::create_crc(0x9B, 8, 0xFF, 0x00, false)
 
@@ -319,57 +484,145 @@ impl CRCu8 {
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0xFF, 0x00, false)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0xDA|0x39 (rev: 0x9C)|0x00|true|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc8darc();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x15", &crc.to_string());
+    /// ```
     pub fn crc8darc() -> CRCu8 {
-        //        Self::create_crc(0x9C, 8, 0x00, 0x00, true)
+        // Self::create_crc(0x9C, 8, 0x00, 0x00, true)
 
         let lookup_table = REF_8_9C;
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0x00, 0x00, true)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0xBC|0xD5|0x00|false|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc8dvb_s2();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0xBC", &crc.to_string());
+    /// ```
     pub fn crc8dvb_s2() -> CRCu8 {
-        //        Self::create_crc(0xD5, 8, 0x00, 0x00, false)
+        // Self::create_crc(0xD5, 8, 0x00, 0x00, false)
 
         let lookup_table = NO_REF_8_D5;
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0x00, 0x00, false)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x97|0x1D (rev: 0xB8)|0xFF|true|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc8ebu();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x97", &crc.to_string());
+    /// ```
     pub fn crc8ebu() -> CRCu8 {
-        //        Self::create_crc(0xB8, 8, 0xFF, 0x00, true)
+        // Self::create_crc(0xB8, 8, 0xFF, 0x00, true)
 
         let lookup_table = REF_8_B8;
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0xFF, 0x00, true)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x7E|0x1D|0xFD|false|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc8icode();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x7E", &crc.to_string());
+    /// ```
     pub fn crc8icode() -> CRCu8 {
-        //        Self::create_crc(0x1D, 8, 0xFD, 0x00, false)
+        // Self::create_crc(0x1D, 8, 0xFD, 0x00, false)
 
         let lookup_table = NO_REF_8_1D;
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0xFD, 0x00, false)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0xA1|0x07|0x00|false|0x55|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc8itu();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0xA1", &crc.to_string());
+    /// ```
     pub fn crc8itu() -> CRCu8 {
-        //        Self::create_crc(0x07, 8, 0x00, 0x55, false)
+        // Self::create_crc(0x07, 8, 0x00, 0x55, false)
 
         let lookup_table = NO_REF_8_07;
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0x00, 0x55, false)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0xA1|0x31 (rev: 0x8C)|0x00|true|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc8maxim();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0xA1", &crc.to_string());
+    /// ```
     pub fn crc8maxim() -> CRCu8 {
-        //        Self::create_crc(0x8C, 8, 0x00, 0x00, true)
+        // Self::create_crc(0x8C, 8, 0x00, 0x00, true)
 
         let lookup_table = REF_8_8C;
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0x00, 0x00, true)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0xD0|0x07 (rev: 0xE0)|0xFF|true|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc8rohc();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0xD0", &crc.to_string());
+    /// ```
     pub fn crc8rohc() -> CRCu8 {
-        //        Self::create_crc(0xE0, 8, 0xFF, 0x00, true)
+        // Self::create_crc(0xE0, 8, 0xFF, 0x00, true)
 
         let lookup_table = REF_8_E0;
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0xFF, 0x00, true)
     }
 
+    /// |Check|Poly|Init|Ref|XorOut|
+    /// |---|---|---|---|---|
+    /// |0x25|0x9B (rev: 0xD9)|0x00|true|0x00|
+    ///
+    /// ```
+    /// # extern crate crc_any;
+    /// # use crc_any::CRCu8;
+    /// let mut crc = CRCu8::crc8wcdma();
+    /// crc.digest(b"123456789");
+    /// assert_eq!("0x25", &crc.to_string());
+    /// ```
     pub fn crc8wcdma() -> CRCu8 {
-        //        Self::create_crc(0xD9, 8, 0x00, 0x00, true)
+        // Self::create_crc(0xD9, 8, 0x00, 0x00, true)
 
         let lookup_table = REF_8_D9;
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0x00, 0x00, true)

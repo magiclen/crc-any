@@ -106,6 +106,7 @@ To simplify the usage, there are several common versions of CRC whose computing 
  * crc40gsm
  * crc64
  * crc64iso
+ * crc64we
  * crc64jones
 
 For instance,
@@ -119,8 +120,8 @@ let mut crc64 = CRC::crc64();
 
 crc64.digest(b"hello");
 
-assert_eq!([236, 83, 136, 71, 154, 124, 145, 63].to_vec(), crc64.get_crc_vec_be());
-assert_eq!("0xEC5388479A7C913F", &crc64.to_string());
+assert_eq!([64, 84, 74, 48, 97, 55, 182, 236].to_vec(), crc64.get_crc_vec_be());
+assert_eq!("0x40544A306137B6EC", &crc64.to_string());
 ```
 
 After getting a CRC value, you can still use the `digest` method to continue computing the next CRC values.
