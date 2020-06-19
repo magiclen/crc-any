@@ -41,11 +41,7 @@ impl Debug for CRCu16 {
 impl Display for CRCu16 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-        f.write_fmt(format_args!(
-            "0x{:01$X}",
-            self.get_crc(),
-            ((f64::from(self.bits) + 3f64) / 4f64) as usize
-        ))
+        f.write_fmt(format_args!("0x{:01$X}", self.get_crc(), (self.bits as usize + 3) >> 2))
     }
 }
 
@@ -218,18 +214,16 @@ impl CRCu16 {
 
     /// Get the current CRC value (it always returns a `u16` value). You can continue calling `digest` method even after getting a CRC value.
     pub fn get_crc(&self) -> u16 {
-        let sum = if self.by_table {
+        let sum = if self.by_table || !self.reflect {
             (self.sum ^ self.final_xor) & self.mask
-        } else if self.reflect {
-            (self.reflect_method(self.sum) ^ self.final_xor) & self.mask
         } else {
-            (self.sum ^ self.final_xor) & self.mask
+            (self.reflect_method(self.sum) ^ self.final_xor) & self.mask
         };
 
         if self.reorder {
             let mut new_sum = 0;
 
-            let e = ((f64::from(self.bits) + 7f64) / 8f64) as u16;
+            let e = (self.bits as u16 + 7) >> 3;
 
             let e_dec = e - 1;
 
@@ -294,7 +288,7 @@ impl CRCu16 {
 impl CRCu16 {
     /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
     pub fn get_crc_vec_le(&mut self) -> Vec<u8> {
-        let e = ((f64::from(self.bits) + 7f64) / 8f64) as u16;
+        let e = (self.bits as u16 + 7) >> 3;
 
         let e_dec = e - 1;
 
@@ -313,7 +307,7 @@ impl CRCu16 {
 
     /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
     pub fn get_crc_vec_be(&mut self) -> Vec<u8> {
-        let e = ((f64::from(self.bits) + 7f64) / 8f64) as u16;
+        let e = (self.bits as u16 + 7) >> 3;
 
         let e_dec = e - 1;
 
@@ -335,7 +329,7 @@ impl CRCu16 {
 impl CRCu16 {
     /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
     pub fn get_crc_heapless_vec_le(&mut self) -> HeaplessVec<u8, U2> {
-        let e = ((f64::from(self.bits) + 7f64) / 8f64) as u16;
+        let e = (self.bits as u16 + 7) >> 3;
 
         let e_dec = e - 1;
 
@@ -354,7 +348,7 @@ impl CRCu16 {
 
     /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
     pub fn get_crc_heapless_vec_be(&mut self) -> HeaplessVec<u8, U2> {
-        let e = ((f64::from(self.bits) + 7f64) / 8f64) as u16;
+        let e = (self.bits as u16 + 7) >> 3;
 
         let e_dec = e - 1;
 

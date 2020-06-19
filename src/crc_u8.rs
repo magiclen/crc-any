@@ -34,11 +34,7 @@ impl Debug for CRCu8 {
 impl Display for CRCu8 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-        f.write_fmt(format_args!(
-            "0x{:01$X}",
-            self.get_crc(),
-            ((f64::from(self.bits) + 3f64) / 4f64) as usize
-        ))
+        f.write_fmt(format_args!("0x{:01$X}", self.get_crc(), (self.bits as usize + 3) >> 2))
     }
 }
 
@@ -149,7 +145,7 @@ impl CRCu8 {
             }
         } else if self.reflect {
             for &n in data.as_ref() {
-                let n = super::crc_u8::CRCu8::reflect_function(0x80, n);
+                let n = Self::reflect_function(0x80, n);
 
                 let mut i = 0x80;
 
@@ -193,18 +189,18 @@ impl CRCu8 {
     }
 
     /// Reset the sum.
+    #[inline]
     pub fn reset(&mut self) {
         self.sum = self.initial;
     }
 
     /// Get the current CRC value (it always returns a `u8` value). You can continue calling `digest` method even after getting a CRC value.
+    #[inline]
     pub fn get_crc(&self) -> u8 {
-        if self.by_table {
+        if self.by_table || !self.reflect {
             (self.sum ^ self.final_xor) & self.mask
-        } else if self.reflect {
-            (self.reflect_method(self.sum) ^ self.final_xor) & self.mask
         } else {
-            (self.sum ^ self.final_xor) & self.mask
+            (self.reflect_method(self.sum) ^ self.final_xor) & self.mask
         }
     }
 
@@ -264,6 +260,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0x4", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc3gsm() -> CRCu8 {
         Self::create_crc(0x03, 3, 0x00, 0x07, false)
     }
@@ -279,6 +276,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0x7", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc4itu() -> CRCu8 {
         Self::create_crc(0x0C, 4, 0x00, 0x00, true)
     }
@@ -294,6 +292,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0xB", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc4interlaken() -> CRCu8 {
         Self::create_crc(0x03, 4, 0x0F, 0x0F, false)
     }
@@ -309,6 +308,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0x00", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc5epc() -> CRCu8 {
         Self::create_crc(0x09, 5, 0x09, 0x00, false)
     }
@@ -324,6 +324,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0x07", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc5itu() -> CRCu8 {
         Self::create_crc(0x15, 5, 0x00, 0x00, true)
     }
@@ -339,6 +340,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0x19", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc5usb() -> CRCu8 {
         Self::create_crc(0x14, 5, 0x1F, 0x1F, true)
     }
@@ -354,6 +356,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0x0D", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc6cdma2000_a() -> CRCu8 {
         Self::create_crc(0x27, 6, 0x3f, 0x00, false)
     }
@@ -369,6 +372,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0x3B", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc6cdma2000_b() -> CRCu8 {
         Self::create_crc(0x07, 6, 0x3f, 0x00, false)
     }
@@ -384,6 +388,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0x26", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc6darc() -> CRCu8 {
         Self::create_crc(0x26, 6, 0x00, 0x00, true)
     }
@@ -399,6 +404,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0x13", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc6gsm() -> CRCu8 {
         Self::create_crc(0x2F, 6, 0x00, 0x3F, false)
     }
@@ -414,6 +420,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0x06", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc6itu() -> CRCu8 {
         Self::create_crc(0x30, 6, 0x00, 0x00, true)
     }
@@ -429,6 +436,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0x75", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc7() -> CRCu8 {
         Self::create_crc(0x09, 7, 0x00, 0x00, false)
     }
@@ -444,6 +452,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0x61", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc7umts() -> CRCu8 {
         Self::create_crc(0x45, 7, 0x00, 0x00, false)
     }
@@ -459,6 +468,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0xF4", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc8() -> CRCu8 {
         // Self::create_crc(0x07, 8, 0x00, 0x00, false)
 
@@ -477,6 +487,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0xDA", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc8cdma2000() -> CRCu8 {
         // Self::create_crc(0x9B, 8, 0xFF, 0x00, false)
 
@@ -495,6 +506,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0x15", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc8darc() -> CRCu8 {
         // Self::create_crc(0x9C, 8, 0x00, 0x00, true)
 
@@ -513,6 +525,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0xBC", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc8dvb_s2() -> CRCu8 {
         // Self::create_crc(0xD5, 8, 0x00, 0x00, false)
 
@@ -531,6 +544,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0x97", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc8ebu() -> CRCu8 {
         // Self::create_crc(0xB8, 8, 0xFF, 0x00, true)
 
@@ -549,6 +563,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0x7E", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc8icode() -> CRCu8 {
         // Self::create_crc(0x1D, 8, 0xFD, 0x00, false)
 
@@ -567,6 +582,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0xA1", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc8itu() -> CRCu8 {
         // Self::create_crc(0x07, 8, 0x00, 0x55, false)
 
@@ -585,6 +601,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0xA1", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc8maxim() -> CRCu8 {
         // Self::create_crc(0x8C, 8, 0x00, 0x00, true)
 
@@ -603,6 +620,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0xD0", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc8rohc() -> CRCu8 {
         // Self::create_crc(0xE0, 8, 0xFF, 0x00, true)
 
@@ -621,6 +639,7 @@ impl CRCu8 {
     /// crc.digest(b"123456789");
     /// assert_eq!("0x25", &crc.to_string());
     /// ```
+    #[inline]
     pub fn crc8wcdma() -> CRCu8 {
         // Self::create_crc(0xD9, 8, 0x00, 0x00, true)
 
