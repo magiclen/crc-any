@@ -287,80 +287,52 @@ impl CRCu64 {
 #[cfg(feature = "alloc")]
 impl CRCu64 {
     /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    #[inline]
     pub fn get_crc_vec_le(&mut self) -> Vec<u8> {
-        let e = (self.bits as u64 + 7) >> 3;
-
-        let e_dec = e - 1;
-
-        let mut vec = Vec::with_capacity(e as usize);
-
         let crc = self.get_crc();
 
-        let o = e_dec * 8;
+        let e = (self.bits as usize + 7) >> 3;
 
-        for i in 0..e {
-            vec.push((crc << ((e_dec - i) * 8) >> o) as u8);
-        }
-
-        vec
+        crc.to_le_bytes()[..e].to_vec()
     }
 
     /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    #[inline]
     pub fn get_crc_vec_be(&mut self) -> Vec<u8> {
-        let e = (self.bits as u64 + 7) >> 3;
-
-        let e_dec = e - 1;
-
-        let mut vec = Vec::with_capacity(e as usize);
-
         let crc = self.get_crc();
 
-        let o = e_dec * 8;
+        let e = (self.bits as usize + 7) >> 3;
 
-        for i in 0..e {
-            vec.push((crc << (i * 8) >> o) as u8);
-        }
-
-        vec
+        crc.to_be_bytes()[(8 - e)..].to_vec()
     }
 }
 
 #[cfg(feature = "heapless")]
 impl CRCu64 {
     /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    #[inline]
     pub fn get_crc_heapless_vec_le(&mut self) -> HeaplessVec<u8, U8> {
-        let e = (self.bits as u64 + 7) >> 3;
+        let crc = self.get_crc();
 
-        let e_dec = e - 1;
+        let e = (self.bits as usize + 7) >> 3;
 
         let mut vec = HeaplessVec::new();
 
-        let crc = self.get_crc();
-
-        let o = e_dec * 8;
-
-        for i in 0..e {
-            vec.push((crc << ((e_dec - i) * 8) >> o) as u8).unwrap();
-        }
+        vec.extend_from_slice(&crc.to_le_bytes()[..e]).unwrap();
 
         vec
     }
 
     /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    #[inline]
     pub fn get_crc_heapless_vec_be(&mut self) -> HeaplessVec<u8, U8> {
-        let e = (self.bits as u64 + 7) >> 3;
+        let crc = self.get_crc();
 
-        let e_dec = e - 1;
+        let e = (self.bits as usize + 7) >> 3;
 
         let mut vec = HeaplessVec::new();
 
-        let crc = self.get_crc();
-
-        let o = e_dec * 8;
-
-        for i in 0..e {
-            vec.push((crc << (i * 8) >> o) as u8).unwrap();
-        }
+        vec.extend_from_slice(&crc.to_be_bytes()[(8 - e)..]).unwrap();
 
         vec
     }

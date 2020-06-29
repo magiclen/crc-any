@@ -287,13 +287,7 @@ impl CRC {
     #[inline]
     pub fn get_crc_vec_le(&mut self) -> Vec<u8> {
         match self {
-            CRC::CRCu8(crc) => {
-                let mut vec = Vec::with_capacity(1);
-
-                vec.push(crc.get_crc());
-
-                vec
-            }
+            CRC::CRCu8(crc) => vec![crc.get_crc()],
             CRC::CRCu16(crc) => crc.get_crc_vec_le(),
             CRC::CRCu32(crc) => crc.get_crc_vec_le(),
             CRC::CRCu64(crc) => crc.get_crc_vec_le(),
@@ -304,13 +298,7 @@ impl CRC {
     #[inline]
     pub fn get_crc_vec_be(&mut self) -> Vec<u8> {
         match self {
-            CRC::CRCu8(crc) => {
-                let mut vec = Vec::with_capacity(1);
-
-                vec.push(crc.get_crc());
-
-                vec
-            }
+            CRC::CRCu8(crc) => vec![crc.get_crc()],
             CRC::CRCu16(crc) => crc.get_crc_vec_be(),
             CRC::CRCu32(crc) => crc.get_crc_vec_be(),
             CRC::CRCu64(crc) => crc.get_crc_vec_be(),
