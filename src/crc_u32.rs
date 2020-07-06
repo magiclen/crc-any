@@ -147,23 +147,23 @@ impl CRCu32 {
     pub fn digest<T: ?Sized + AsRef<[u8]>>(&mut self, data: &T) {
         if self.by_table {
             if self.bits == 8 {
-                for &n in data.as_ref() {
+                for n in data.as_ref().iter().copied() {
                     let index = (self.sum as u8 ^ n) as usize;
                     self.sum = self.lookup_table[index];
                 }
             } else if self.reflect {
-                for &n in data.as_ref() {
+                for n in data.as_ref().iter().copied() {
                     let index = ((self.sum as u8) ^ n) as usize;
                     self.sum = (self.sum >> 8) ^ self.lookup_table[index];
                 }
             } else {
-                for &n in data.as_ref() {
+                for n in data.as_ref().iter().copied() {
                     let index = ((self.sum >> u32::from(self.bits - 8)) as u8 ^ n) as usize;
                     self.sum = (self.sum << 8) ^ self.lookup_table[index];
                 }
             }
         } else if self.reflect {
-            for &n in data.as_ref() {
+            for n in data.as_ref().iter().copied() {
                 let n = super::crc_u8::CRCu8::reflect_function(0x80, n);
 
                 let mut i = 0x80;
@@ -185,7 +185,7 @@ impl CRCu32 {
                 }
             }
         } else {
-            for &n in data.as_ref() {
+            for n in data.as_ref().iter().copied() {
                 let mut i = 0x80;
 
                 while i != 0 {
