@@ -10,6 +10,7 @@ use heapless::Vec as HeaplessVec;
 
 use crate::constants::crc_u64::*;
 
+#[allow(clippy::upper_case_acronyms)]
 /// This struct can help you compute a CRC-64 (or CRC-x where **x** is equal or less than `64`) value.
 pub struct CRCu64 {
     by_table: bool,

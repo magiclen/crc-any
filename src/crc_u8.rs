@@ -3,6 +3,7 @@ use alloc::fmt::{self, Debug, Display, Formatter};
 
 use crate::constants::crc_u8::*;
 
+#[allow(clippy::upper_case_acronyms)]
 /// This struct can help you compute a CRC-8 (or CRC-x where **x** is equal or less than `8`) value.
 pub struct CRCu8 {
     by_table: bool,
