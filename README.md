@@ -1,7 +1,7 @@
 CRC Any
 ====================
 
-[![Build Status](https://travis-ci.org/magiclen/crc-any.svg?branch=master)](https://travis-ci.org/magiclen/crc-any)
+[![CI](https://github.com/magiclen/crc-any/actions/workflows/ci.yml/badge.svg)](https://github.com/magiclen/crc-any/actions/workflows/ci.yml)
 
 To compute CRC values by providing the length of bits, expression, reflection, an initial value and a final xor value. It has many built-in CRC functions.
 

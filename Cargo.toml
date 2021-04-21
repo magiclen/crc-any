@@ -1,6 +1,6 @@
 [package]
 name = "crc-any"
-version = "2.3.5"
+version = "2.3.6"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2018"
 repository = "https://github.com/magiclen/crc-any"
@@ -11,10 +11,6 @@ description = "To compute CRC values by providing the length of bits, expression
 readme = "README.md"
 license = "MIT"
 include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE", "benches/bench.rs"]
-
-[badges.travis-ci]
-repository = "magiclen/crc-any"
-branch = "master"
 
 [dependencies]
 
