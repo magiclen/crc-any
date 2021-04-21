@@ -259,6 +259,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc3gsm();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0x4", &crc.to_string());
     /// ```
     #[inline]
@@ -275,6 +276,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc4itu();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0x7", &crc.to_string());
     /// ```
     #[inline]
@@ -291,6 +293,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc4interlaken();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0xB", &crc.to_string());
     /// ```
     #[inline]
@@ -307,6 +310,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc5epc();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0x00", &crc.to_string());
     /// ```
     #[inline]
@@ -323,6 +327,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc5itu();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0x07", &crc.to_string());
     /// ```
     #[inline]
@@ -339,6 +344,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc5usb();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0x19", &crc.to_string());
     /// ```
     #[inline]
@@ -355,6 +361,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc6cdma2000_a();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0x0D", &crc.to_string());
     /// ```
     #[inline]
@@ -371,6 +378,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc6cdma2000_b();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0x3B", &crc.to_string());
     /// ```
     #[inline]
@@ -387,6 +395,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc6darc();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0x26", &crc.to_string());
     /// ```
     #[inline]
@@ -403,6 +412,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc6gsm();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0x13", &crc.to_string());
     /// ```
     #[inline]
@@ -419,6 +429,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc6itu();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0x06", &crc.to_string());
     /// ```
     #[inline]
@@ -435,6 +446,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc7();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0x75", &crc.to_string());
     /// ```
     #[inline]
@@ -451,6 +463,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc7umts();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0x61", &crc.to_string());
     /// ```
     #[inline]
@@ -467,6 +480,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0xF4", &crc.to_string());
     /// ```
     #[inline]
@@ -486,6 +500,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8cdma2000();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0xDA", &crc.to_string());
     /// ```
     #[inline]
@@ -505,6 +520,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8darc();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0x15", &crc.to_string());
     /// ```
     #[inline]
@@ -524,6 +540,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8dvb_s2();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0xBC", &crc.to_string());
     /// ```
     #[inline]
@@ -543,6 +560,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8ebu();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0x97", &crc.to_string());
     /// ```
     #[inline]
@@ -562,6 +580,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8icode();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0x7E", &crc.to_string());
     /// ```
     #[inline]
@@ -581,6 +600,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8itu();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0xA1", &crc.to_string());
     /// ```
     #[inline]
@@ -600,6 +620,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8maxim();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0xA1", &crc.to_string());
     /// ```
     #[inline]
@@ -619,6 +640,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8rohc();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0xD0", &crc.to_string());
     /// ```
     #[inline]
@@ -638,6 +660,7 @@ impl CRCu8 {
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8wcdma();
     /// crc.digest(b"123456789");
+    /// # #[cfg(features = "alloc")]
     /// assert_eq!("0x25", &crc.to_string());
     /// ```
     #[inline]
