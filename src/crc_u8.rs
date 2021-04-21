@@ -211,6 +211,7 @@ impl CRCu8 {
         for (i, e) in lookup_table.iter_mut().enumerate() {
             let mut v = i as u8;
 
+            #[allow(clippy::branches_sharing_code)]
             for _ in 0..8u8 {
                 if v & 1 != 0 {
                     v >>= 1;
@@ -232,6 +233,7 @@ impl CRCu8 {
         for (i, e) in lookup_table.iter_mut().enumerate() {
             let mut v = i as u8;
 
+            #[allow(clippy::branches_sharing_code)]
             for _ in 0..8 {
                 if v & 0x80 == 0 {
                     v <<= 1;

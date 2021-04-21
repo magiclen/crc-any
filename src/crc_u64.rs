@@ -244,6 +244,7 @@ impl CRCu64 {
         for (i, e) in lookup_table.iter_mut().enumerate() {
             let mut v = i as u64;
 
+            #[allow(clippy::branches_sharing_code)]
             for _ in 0..8u8 {
                 if v & 1 != 0 {
                     v >>= 1;
@@ -269,6 +270,7 @@ impl CRCu64 {
         for (i, e) in lookup_table.iter_mut().enumerate() {
             let mut v = i as u64;
 
+            #[allow(clippy::branches_sharing_code)]
             for _ in 0..bits {
                 if v & mask1 == 0 {
                     v <<= 1;
