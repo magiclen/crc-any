@@ -672,7 +672,7 @@ impl CRCu32 {
 
     /// |Check|Poly|Init|Ref|XorOut|
     /// |---|---|---|---|---|
-    /// |0x340BC6D9|0x04C11DB7 (rev: 0xEDB88320)|0x00000000|true|0x00000000|
+    /// |0x340BC6D9|0x04C11DB7 (rev: 0xEDB88320)|0xFFFFFFFF|true|0x00000000|
     ///
     /// ```
     /// # extern crate crc_any;
