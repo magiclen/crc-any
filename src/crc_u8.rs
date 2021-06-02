@@ -424,7 +424,7 @@ impl CRCu8 {
 
     /// |Check|Poly|Init|Ref|XorOut|
     /// |---|---|---|---|---|
-    /// |0x06|0x03 (0x30)|0x00|true|0x00|
+    /// |0x06|0x03 (rev: 0x30)|0x00|true|0x00|
     ///
     /// ```
     /// # extern crate crc_any;
