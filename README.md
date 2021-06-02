@@ -62,6 +62,7 @@ To simplify the usage, there are several common versions of CRC whose computing 
  * crc16
  * crc16ccitt_false
  * crc16aug_ccitt
+ * crc16buypass
  * crc16cdma2000
  * crc16dds_110
  * crc16dect_r
