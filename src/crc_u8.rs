@@ -250,7 +250,6 @@ impl CRCu8 {
     }
 }
 
-#[allow(clippy::unreadable_literal)]
 impl CRCu8 {
     /// |Check|Poly|Init|Ref|XorOut|
     /// |---|---|---|---|---|

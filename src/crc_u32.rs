@@ -341,7 +341,6 @@ impl CRCu32 {
     }
 }
 
-#[allow(clippy::unreadable_literal)]
 impl CRCu32 {
     /// |Check|Poly|Init|Ref|XorOut|
     /// |---|---|---|---|---|
