@@ -4,8 +4,6 @@ use alloc::fmt::{self, Debug, Display, Formatter};
 use alloc::vec::Vec;
 
 #[cfg(feature = "heapless")]
-use heapless::consts::U2;
-#[cfg(feature = "heapless")]
 use heapless::Vec as HeaplessVec;
 
 use crate::constants::crc_u16::*;
@@ -314,7 +312,7 @@ impl CRCu16 {
 impl CRCu16 {
     /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
     #[inline]
-    pub fn get_crc_heapless_vec_le(&mut self) -> HeaplessVec<u8, U2> {
+    pub fn get_crc_heapless_vec_le(&mut self) -> HeaplessVec<u8, 2> {
         let crc = self.get_crc();
 
         let e = (self.bits as usize + 7) >> 3;
@@ -328,7 +326,7 @@ impl CRCu16 {
 
     /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
     #[inline]
-    pub fn get_crc_heapless_vec_be(&mut self) -> HeaplessVec<u8, U2> {
+    pub fn get_crc_heapless_vec_be(&mut self) -> HeaplessVec<u8, 2> {
         let crc = self.get_crc();
 
         let e = (self.bits as usize + 7) >> 3;
