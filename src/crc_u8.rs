@@ -2,13 +2,14 @@
 use alloc::fmt::{self, Debug, Display, Formatter};
 
 use crate::constants::crc_u8::*;
+use crate::lookup_table::LookUpTable;
 
 #[allow(clippy::upper_case_acronyms)]
 /// This struct can help you compute a CRC-8 (or CRC-x where **x** is equal or less than `8`) value.
 pub struct CRCu8 {
     by_table: bool,
     poly: u8,
-    lookup_table: [u8; 256],
+    lookup_table: LookUpTable<u8>,
     sum: u8,
     #[cfg(any(feature = "alloc", feature = "heapless"))]
     pub(crate) bits: u8,
@@ -46,9 +47,9 @@ impl CRCu8 {
 
         if bits % 8 == 0 {
             let lookup_table = if reflect {
-                Self::crc_reflect_table(poly)
+                LookUpTable::Dynamic(Self::crc_reflect_table(poly))
             } else {
-                Self::crc_table(poly)
+                LookUpTable::Dynamic(Self::crc_table(poly))
             };
 
             Self::create_crc_with_exists_lookup_table(
@@ -59,13 +60,13 @@ impl CRCu8 {
                 reflect,
             )
         } else {
-            Self::create(false, [0u8; 256], poly, bits, initial, final_xor, reflect)
+            Self::create(false, LookUpTable::Static(&[0; 256]), poly, bits, initial, final_xor, reflect)
         }
     }
 
     #[inline]
     pub(crate) fn create_crc_with_exists_lookup_table(
-        lookup_table: [u8; 256],
+        lookup_table: LookUpTable<u8>,
         bits: u8,
         initial: u8,
         final_xor: u8,
@@ -79,7 +80,7 @@ impl CRCu8 {
     #[inline]
     fn create(
         by_table: bool,
-        lookup_table: [u8; 256],
+        lookup_table: LookUpTable<u8>,
         mut poly: u8,
         bits: u8,
         initial: u8,
@@ -488,7 +489,7 @@ impl CRCu8 {
     pub fn crc8() -> CRCu8 {
         // Self::create_crc(0x07, 8, 0x00, 0x00, false)
 
-        let lookup_table = NO_REF_8_07;
+        let lookup_table = LookUpTable::Static(&NO_REF_8_07);
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0x00, 0x00, false)
     }
 
@@ -508,7 +509,7 @@ impl CRCu8 {
     pub fn crc8cdma2000() -> CRCu8 {
         // Self::create_crc(0x9B, 8, 0xFF, 0x00, false)
 
-        let lookup_table = NO_REF_8_9B;
+        let lookup_table = LookUpTable::Static(&NO_REF_8_9B);
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0xFF, 0x00, false)
     }
 
@@ -528,7 +529,7 @@ impl CRCu8 {
     pub fn crc8darc() -> CRCu8 {
         // Self::create_crc(0x9C, 8, 0x00, 0x00, true)
 
-        let lookup_table = REF_8_9C;
+        let lookup_table = LookUpTable::Static(&REF_8_9C);
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0x00, 0x00, true)
     }
 
@@ -548,7 +549,7 @@ impl CRCu8 {
     pub fn crc8dvb_s2() -> CRCu8 {
         // Self::create_crc(0xD5, 8, 0x00, 0x00, false)
 
-        let lookup_table = NO_REF_8_D5;
+        let lookup_table = LookUpTable::Static(&NO_REF_8_D5);
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0x00, 0x00, false)
     }
 
@@ -568,7 +569,7 @@ impl CRCu8 {
     pub fn crc8ebu() -> CRCu8 {
         // Self::create_crc(0xB8, 8, 0xFF, 0x00, true)
 
-        let lookup_table = REF_8_B8;
+        let lookup_table = LookUpTable::Static(&REF_8_B8);
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0xFF, 0x00, true)
     }
 
@@ -588,7 +589,7 @@ impl CRCu8 {
     pub fn crc8icode() -> CRCu8 {
         // Self::create_crc(0x1D, 8, 0xFD, 0x00, false)
 
-        let lookup_table = NO_REF_8_1D;
+        let lookup_table = LookUpTable::Static(&NO_REF_8_1D);
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0xFD, 0x00, false)
     }
 
@@ -608,7 +609,7 @@ impl CRCu8 {
     pub fn crc8itu() -> CRCu8 {
         // Self::create_crc(0x07, 8, 0x00, 0x55, false)
 
-        let lookup_table = NO_REF_8_07;
+        let lookup_table = LookUpTable::Static(&NO_REF_8_07);
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0x00, 0x55, false)
     }
 
@@ -628,7 +629,7 @@ impl CRCu8 {
     pub fn crc8maxim() -> CRCu8 {
         // Self::create_crc(0x8C, 8, 0x00, 0x00, true)
 
-        let lookup_table = REF_8_8C;
+        let lookup_table = LookUpTable::Static(&REF_8_8C);
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0x00, 0x00, true)
     }
 
@@ -648,7 +649,7 @@ impl CRCu8 {
     pub fn crc8rohc() -> CRCu8 {
         // Self::create_crc(0xE0, 8, 0xFF, 0x00, true)
 
-        let lookup_table = REF_8_E0;
+        let lookup_table = LookUpTable::Static(&REF_8_E0);
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0xFF, 0x00, true)
     }
 
@@ -668,7 +669,7 @@ impl CRCu8 {
     pub fn crc8wcdma() -> CRCu8 {
         // Self::create_crc(0xD9, 8, 0x00, 0x00, true)
 
-        let lookup_table = REF_8_D9;
+        let lookup_table = LookUpTable::Static(&REF_8_D9);
         Self::create_crc_with_exists_lookup_table(lookup_table, 8, 0x00, 0x00, true)
     }
 }

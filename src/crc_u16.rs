@@ -7,13 +7,14 @@ use alloc::vec::Vec;
 use heapless::Vec as HeaplessVec;
 
 use crate::constants::crc_u16::*;
+use crate::lookup_table::LookUpTable;
 
 #[allow(clippy::upper_case_acronyms)]
 /// This struct can help you compute a CRC-16 (or CRC-x where **x** is equal or less than `16`) value.
 pub struct CRCu16 {
     by_table: bool,
     poly: u16,
-    lookup_table: [u16; 256],
+    lookup_table: LookUpTable<u16>,
     sum: u16,
     pub(crate) bits: u8,
     high_bit: u16,
@@ -51,9 +52,9 @@ impl CRCu16 {
 
         if bits % 8 == 0 {
             let lookup_table = if reflect {
-                Self::crc_reflect_table(poly)
+                LookUpTable::Dynamic(Self::crc_reflect_table(poly))
             } else {
-                Self::crc_table(poly, bits)
+                LookUpTable::Dynamic(Self::crc_table(poly, bits))
             };
 
             Self::create_crc_with_exists_lookup_table(
@@ -64,13 +65,13 @@ impl CRCu16 {
                 reflect,
             )
         } else {
-            Self::create(false, [0u16; 256], poly, bits, initial, final_xor, reflect)
+            Self::create(false, LookUpTable::Static(&[0u16; 256]), poly, bits, initial, final_xor, reflect)
         }
     }
 
     #[inline]
     pub(crate) fn create_crc_with_exists_lookup_table(
-        lookup_table: [u16; 256],
+        lookup_table: LookUpTable<u16>,
         bits: u8,
         initial: u16,
         final_xor: u16,
@@ -84,7 +85,7 @@ impl CRCu16 {
     #[inline]
     fn create(
         by_table: bool,
-        lookup_table: [u16; 256],
+        lookup_table: LookUpTable<u16>,
         mut poly: u16,
         bits: u8,
         initial: u16,
@@ -547,7 +548,7 @@ impl CRCu16 {
     pub fn crc16() -> CRCu16 {
         //         Self::create_crc(0xA001, 16, 0x0000, 0x0000, true)
 
-        let lookup_table = REF_16_A001;
+        let lookup_table = LookUpTable::Static(&REF_16_A001);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0x0000, 0x0000, true)
     }
 
@@ -566,7 +567,7 @@ impl CRCu16 {
     pub fn crc16ccitt_false() -> CRCu16 {
         //         Self::create_crc(0x1021, 16, 0xFFFF, 0x0000, false)
 
-        let lookup_table = NO_REF_16_1021;
+        let lookup_table = LookUpTable::Static(&NO_REF_16_1021);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0xFFFF, 0x0000, false)
     }
 
@@ -585,7 +586,7 @@ impl CRCu16 {
     pub fn crc16aug_ccitt() -> CRCu16 {
         //         Self::create_crc(0x1021, 16, 0x1D0F, 0x0000, false)
 
-        let lookup_table = NO_REF_16_1021;
+        let lookup_table = LookUpTable::Static(&NO_REF_16_1021);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0x1D0F, 0x0000, false)
     }
 
@@ -604,7 +605,7 @@ impl CRCu16 {
     pub fn crc16buypass() -> CRCu16 {
         //         Self::create_crc(0x8005, 16, 0x0000, 0x0000, false)
 
-        let lookup_table = NO_REF_16_8005;
+        let lookup_table = LookUpTable::Static(&NO_REF_16_8005);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0x0000, 0x0000, false)
     }
 
@@ -623,7 +624,7 @@ impl CRCu16 {
     pub fn crc16cdma2000() -> CRCu16 {
         //         Self::create_crc(0xC867, 16, 0xFFFF, 0x0000, false)
 
-        let lookup_table = NO_REF_16_C867;
+        let lookup_table = LookUpTable::Static(&NO_REF_16_C867);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0xFFFF, 0x0000, false)
     }
 
@@ -642,7 +643,7 @@ impl CRCu16 {
     pub fn crc16dds_110() -> CRCu16 {
         //         Self::create_crc(0x8005, 16, 0x800D, 0x0000, false)
 
-        let lookup_table = NO_REF_16_8005;
+        let lookup_table = LookUpTable::Static(&NO_REF_16_8005);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0x800D, 0x0000, false)
     }
 
@@ -661,7 +662,7 @@ impl CRCu16 {
     pub fn crc16dect_r() -> CRCu16 {
         //         Self::create_crc(0x0589, 16, 0x0000, 0x0001, false)
 
-        let lookup_table = NO_REF_16_0589;
+        let lookup_table = LookUpTable::Static(&NO_REF_16_0589);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0x0000, 0x0001, false)
     }
 
@@ -680,7 +681,7 @@ impl CRCu16 {
     pub fn crc16dect_x() -> CRCu16 {
         //         Self::create_crc(0x0589, 16, 0x0000, 0x0000, false)
 
-        let lookup_table = NO_REF_16_0589;
+        let lookup_table = LookUpTable::Static(&NO_REF_16_0589);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0x0000, 0x0000, false)
     }
 
@@ -699,7 +700,7 @@ impl CRCu16 {
     pub fn crc16dnp() -> CRCu16 {
         //         Self::create_crc(0xA6BC, 16, 0x0000, 0xFFFF, true)
 
-        let lookup_table = REF_16_A6BC;
+        let lookup_table = LookUpTable::Static(&REF_16_A6BC);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0x0000, 0xFFFF, true)
     }
 
@@ -718,7 +719,7 @@ impl CRCu16 {
     pub fn crc16en_13757() -> CRCu16 {
         //         Self::create_crc(0x3D65, 16, 0x0000, 0xFFFF, false)
 
-        let lookup_table = NO_REF_16_3D65;
+        let lookup_table = LookUpTable::Static(&NO_REF_16_3D65);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0x0000, 0xFFFF, false)
     }
 
@@ -737,7 +738,7 @@ impl CRCu16 {
     pub fn crc16genibus() -> CRCu16 {
         //         Self::create_crc(0x1021, 16, 0xFFFF, 0xFFFF, false)
 
-        let lookup_table = NO_REF_16_1021;
+        let lookup_table = LookUpTable::Static(&NO_REF_16_1021);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0xFFFF, 0xFFFF, false)
     }
 
@@ -756,7 +757,7 @@ impl CRCu16 {
     pub fn crc16maxim() -> CRCu16 {
         //         Self::create_crc(0xA001, 16, 0x0000, 0xFFFF, true)
 
-        let lookup_table = REF_16_A001;
+        let lookup_table = LookUpTable::Static(&REF_16_A001);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0x0000, 0xFFFF, true)
     }
 
@@ -775,7 +776,7 @@ impl CRCu16 {
     pub fn crc16mcrf4cc() -> CRCu16 {
         //         Self::create_crc(0x8408, 16, 0xFFFF, 0x0000, true)
 
-        let lookup_table = REF_16_8408;
+        let lookup_table = LookUpTable::Static(&REF_16_8408);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0xFFFF, 0x0000, true)
     }
 
@@ -794,7 +795,7 @@ impl CRCu16 {
     pub fn crc16riello() -> CRCu16 {
         //        Self::create_crc(0x8408, 16, 0xB2AA, 0x0000, true)
 
-        let lookup_table = REF_16_8408;
+        let lookup_table = LookUpTable::Static(&REF_16_8408);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0xB2AA, 0x0000, true)
     }
 
@@ -813,7 +814,7 @@ impl CRCu16 {
     pub fn crc16t10_dif() -> CRCu16 {
         //         Self::create_crc(0x8BB7, 16, 0x0000, 0x0000, false)
 
-        let lookup_table = NO_REF_16_8BB7;
+        let lookup_table = LookUpTable::Static(&NO_REF_16_8BB7);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0x0000, 0x0000, false)
     }
 
@@ -832,7 +833,7 @@ impl CRCu16 {
     pub fn crc16teledisk() -> CRCu16 {
         //         Self::create_crc(0xA097, 16, 0x0000, 0x0000, false)
 
-        let lookup_table = REF_16_A097;
+        let lookup_table = LookUpTable::Static(&REF_16_A097);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0x0000, 0x0000, false)
     }
 
@@ -851,7 +852,7 @@ impl CRCu16 {
     pub fn crc16tms13157() -> CRCu16 {
         //         Self::create_crc(0x8408, 16, 0x89EC, 0x0000, true)
 
-        let lookup_table = REF_16_8408;
+        let lookup_table = LookUpTable::Static(&REF_16_8408);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0x89EC, 0x0000, true)
     }
 
@@ -870,7 +871,7 @@ impl CRCu16 {
     pub fn crc16usb() -> CRCu16 {
         //         Self::create_crc(0xA001, 16, 0xFFFF, 0xFFFF, true)
 
-        let lookup_table = REF_16_A001;
+        let lookup_table = LookUpTable::Static(&REF_16_A001);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0xFFFF, 0xFFFF, true)
     }
 
@@ -889,7 +890,7 @@ impl CRCu16 {
     pub fn crc_a() -> CRCu16 {
         //         Self::create_crc(0x8408, 16, 0xC6C6, 0x0000, true)
 
-        let lookup_table = REF_16_8408;
+        let lookup_table = LookUpTable::Static(&REF_16_8408);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0xC6C6, 0x0000, true)
     }
 
@@ -908,7 +909,7 @@ impl CRCu16 {
     pub fn crc16kermit() -> CRCu16 {
         //         Self::create_crc(0x8408, 16, 0x0000, 0x0000, true)
 
-        let lookup_table = REF_16_8408;
+        let lookup_table = LookUpTable::Static(&REF_16_8408);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0x0000, 0x0000, true)
     }
 
@@ -927,7 +928,7 @@ impl CRCu16 {
     pub fn crc16modbus() -> CRCu16 {
         //         Self::create_crc(0xA001, 16, 0xFFFF, 0x0000, true)
 
-        let lookup_table = REF_16_A001;
+        let lookup_table = LookUpTable::Static(&REF_16_A001);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0xFFFF, 0x0000, true)
     }
 
@@ -946,7 +947,7 @@ impl CRCu16 {
     pub fn crc16_x25() -> CRCu16 {
         //         Self::create_crc(0x8408, 16, 0xFFFF, 0xFFFF, true)
 
-        let lookup_table = REF_16_8408;
+        let lookup_table = LookUpTable::Static(&REF_16_8408);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0xFFFF, 0xFFFF, true)
     }
 
@@ -965,7 +966,7 @@ impl CRCu16 {
     pub fn crc16xmodem() -> CRCu16 {
         //         Self::create_crc(0x1021, 16, 0x0000, 0x0000, false)
 
-        let lookup_table = NO_REF_16_1021;
+        let lookup_table = LookUpTable::Static(&NO_REF_16_1021);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0x0000, 0x0000, false)
     }
 }
