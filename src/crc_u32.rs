@@ -7,13 +7,14 @@ use alloc::vec::Vec;
 use heapless::Vec as HeaplessVec;
 
 use crate::constants::crc_u32::*;
+use crate::lookup_table::LookUpTable;
 
 #[allow(clippy::upper_case_acronyms)]
 /// This struct can help you compute a CRC-32 (or CRC-x where **x** is equal or less than `32`) value.
 pub struct CRCu32 {
     by_table: bool,
     poly: u32,
-    lookup_table: [u32; 256],
+    lookup_table: LookUpTable<u32>,
     sum: u32,
     pub(crate) bits: u8,
     high_bit: u32,
@@ -51,9 +52,9 @@ impl CRCu32 {
 
         if bits % 8 == 0 {
             let lookup_table = if reflect {
-                Self::crc_reflect_table(poly)
+                LookUpTable::Dynamic(Self::crc_reflect_table(poly))
             } else {
-                Self::crc_table(poly, bits)
+                LookUpTable::Dynamic(Self::crc_table(poly, bits))
             };
 
             Self::create_crc_with_exists_lookup_table(
@@ -64,13 +65,13 @@ impl CRCu32 {
                 reflect,
             )
         } else {
-            Self::create(false, [0u32; 256], poly, bits, initial, final_xor, reflect)
+            Self::create(false, LookUpTable::Static(&[0u32; 256]), poly, bits, initial, final_xor, reflect)
         }
     }
 
     #[inline]
     pub(crate) fn create_crc_with_exists_lookup_table(
-        lookup_table: [u32; 256],
+        lookup_table: LookUpTable<u32>,
         bits: u8,
         initial: u32,
         final_xor: u32,
@@ -84,7 +85,7 @@ impl CRCu32 {
     #[inline]
     fn create(
         by_table: bool,
-        lookup_table: [u32; 256],
+        lookup_table: LookUpTable<u32>,
         mut poly: u32,
         bits: u8,
         initial: u32,
@@ -387,7 +388,7 @@ impl CRCu32 {
     pub fn crc24() -> CRCu32 {
         // Self::create_crc(0x00864CFB, 24, 0x00B704CE, 0x00000000, false)
 
-        let lookup_table = NO_REF_24_00864CFB;
+        let lookup_table = LookUpTable::Static(&NO_REF_24_00864CFB);
         Self::create_crc_with_exists_lookup_table(lookup_table, 24, 0x00B704CE, 0x00000000, false)
     }
 
@@ -406,7 +407,7 @@ impl CRCu32 {
     pub fn crc24ble() -> CRCu32 {
         // Self::create_crc(0x00DA6000, 24, 0x00555555, 0x00000000, true)
 
-        let lookup_table = REF_24_00DA6000;
+        let lookup_table = LookUpTable::Static(&REF_24_00DA6000);
         Self::create_crc_with_exists_lookup_table(lookup_table, 24, 0x00555555, 0x00000000, true)
     }
 
@@ -425,7 +426,7 @@ impl CRCu32 {
     pub fn crc24flexray_a() -> CRCu32 {
         // Self::create_crc(0x005D6DCB, 24, 0x00FEDCBA, 0x00000000, false)
 
-        let lookup_table = NO_REF_24_005D6DCB;
+        let lookup_table = LookUpTable::Static(&NO_REF_24_005D6DCB);
         Self::create_crc_with_exists_lookup_table(lookup_table, 24, 0x00FEDCBA, 0x00000000, false)
     }
 
@@ -444,7 +445,7 @@ impl CRCu32 {
     pub fn crc24flexray_b() -> CRCu32 {
         // Self::create_crc(0x005D6DCB, 24, 0x00ABCDEF, 0x00000000, false)
 
-        let lookup_table = NO_REF_24_005D6DCB;
+        let lookup_table = LookUpTable::Static(&NO_REF_24_005D6DCB);
         Self::create_crc_with_exists_lookup_table(lookup_table, 24, 0x00ABCDEF, 0x00000000, false)
     }
 
@@ -463,7 +464,7 @@ impl CRCu32 {
     pub fn crc24lte_a() -> CRCu32 {
         // Self::create_crc(0x00864CFB, 24, 0x00000000, 0x00000000, false)
 
-        let lookup_table = NO_REF_24_00864CFB;
+        let lookup_table = LookUpTable::Static(&NO_REF_24_00864CFB);
         Self::create_crc_with_exists_lookup_table(lookup_table, 24, 0x00000000, 0x00000000, false)
     }
 
@@ -482,7 +483,7 @@ impl CRCu32 {
     pub fn crc24lte_b() -> CRCu32 {
         // Self::create_crc(0x00800063, 24, 0x00000000, 0x00000000, false)
 
-        let lookup_table = NO_REF_24_00800063;
+        let lookup_table = LookUpTable::Static(&NO_REF_24_00800063);
         Self::create_crc_with_exists_lookup_table(lookup_table, 24, 0x00000000, 0x00000000, false)
     }
 
@@ -501,7 +502,7 @@ impl CRCu32 {
     pub fn crc24os9() -> CRCu32 {
         // Self::create_crc(0x00800063, 24, 0x00FFFFFF, 0x00FFFFFF, false)
 
-        let lookup_table = NO_REF_24_00800063;
+        let lookup_table = LookUpTable::Static(&NO_REF_24_00800063);
         Self::create_crc_with_exists_lookup_table(lookup_table, 24, 0x00FFFFFF, 0x00FFFFFF, false)
     }
 
@@ -536,7 +537,7 @@ impl CRCu32 {
     pub fn crc32() -> CRCu32 {
         // Self::create_crc(0xEDB88320, 32, 0xFFFFFFFF, 0xFFFFFFFF, true)
 
-        let lookup_table = REF_32_EDB88320;
+        let lookup_table = LookUpTable::Static(&REF_32_EDB88320);
         Self::create_crc_with_exists_lookup_table(lookup_table, 32, 0xFFFFFFFF, 0xFFFFFFFF, true)
     }
 
@@ -559,7 +560,7 @@ impl CRCu32 {
 
         // crc = Self::create_crc(0x04C11DB7, 32, 0xFFFFFFFF, 0xFFFFFFFF, false);
 
-        let lookup_table = NO_REF_32_04C11DB7;
+        let lookup_table = LookUpTable::Static(&NO_REF_32_04C11DB7);
         crc = Self::create_crc_with_exists_lookup_table(
             lookup_table,
             32,
@@ -588,7 +589,7 @@ impl CRCu32 {
     pub fn crc32bzip2() -> CRCu32 {
         // Self::create_crc(0x04C11DB7, 32, 0xFFFFFFFF, 0xFFFFFFFF, false)
 
-        let lookup_table = NO_REF_32_04C11DB7;
+        let lookup_table = LookUpTable::Static(&NO_REF_32_04C11DB7);
         Self::create_crc_with_exists_lookup_table(lookup_table, 32, 0xFFFFFFFF, 0xFFFFFFFF, false)
     }
 
@@ -607,7 +608,7 @@ impl CRCu32 {
     pub fn crc32c() -> CRCu32 {
         // Self::create_crc(0x82F63B78, 32, 0xFFFFFFFF, 0xFFFFFFFF, true)
 
-        let lookup_table = REF_32_82F63B78;
+        let lookup_table = LookUpTable::Static(&REF_32_82F63B78);
         Self::create_crc_with_exists_lookup_table(lookup_table, 32, 0xFFFFFFFF, 0xFFFFFFFF, true)
     }
 
@@ -626,7 +627,7 @@ impl CRCu32 {
     pub fn crc32d() -> CRCu32 {
         // Self::create_crc(0xD419CC15, 32, 0xFFFFFFFF, 0xFFFFFFFF, true)
 
-        let lookup_table = REF_32_D419CC15;
+        let lookup_table = LookUpTable::Static(&REF_32_D419CC15);
         Self::create_crc_with_exists_lookup_table(lookup_table, 32, 0xFFFFFFFF, 0xFFFFFFFF, true)
     }
 
@@ -645,7 +646,7 @@ impl CRCu32 {
     pub fn crc32mpeg2() -> CRCu32 {
         // Self::create_crc(0x04C11DB7, 32, 0xFFFFFFFF, 0x00000000, false)
 
-        let lookup_table = NO_REF_32_04C11DB7;
+        let lookup_table = LookUpTable::Static(&NO_REF_32_04C11DB7);
         Self::create_crc_with_exists_lookup_table(lookup_table, 32, 0xFFFFFFFF, 0x00000000, false)
     }
 
@@ -664,7 +665,7 @@ impl CRCu32 {
     pub fn crc32posix() -> CRCu32 {
         // Self::create_crc(0x04C11DB7, 32, 0x00000000, 0xFFFFFFFF, false)
 
-        let lookup_table = NO_REF_32_04C11DB7;
+        let lookup_table = LookUpTable::Static(&NO_REF_32_04C11DB7);
         Self::create_crc_with_exists_lookup_table(lookup_table, 32, 0x00000000, 0xFFFFFFFF, false)
     }
 
@@ -683,7 +684,7 @@ impl CRCu32 {
     pub fn crc32q() -> CRCu32 {
         // Self::create_crc(0x814141AB, 32, 0x00000000, 0x00000000, false)
 
-        let lookup_table = NO_REF_32_814141AB;
+        let lookup_table = LookUpTable::Static(&NO_REF_32_814141AB);
         Self::create_crc_with_exists_lookup_table(lookup_table, 32, 0x00000000, 0x00000000, false)
     }
 
@@ -702,7 +703,7 @@ impl CRCu32 {
     pub fn crc32jamcrc() -> CRCu32 {
         // Self::create_crc(0xEDB88320, 32, 0xFFFFFFFF, 0x00000000, true)
 
-        let lookup_table = REF_32_EDB88320;
+        let lookup_table = LookUpTable::Static(&REF_32_EDB88320);
         Self::create_crc_with_exists_lookup_table(lookup_table, 32, 0xFFFFFFFF, 0x00000000, true)
     }
 
@@ -721,7 +722,7 @@ impl CRCu32 {
     pub fn crc32xfer() -> CRCu32 {
         // Self::create_crc(0x000000AF, 32, 0x00000000, 0x00000000, false)
 
-        let lookup_table = NO_REF_32_000000AF;
+        let lookup_table = LookUpTable::Static(&NO_REF_32_000000AF);
         Self::create_crc_with_exists_lookup_table(lookup_table, 32, 0x00000000, 0x00000000, false)
     }
 }

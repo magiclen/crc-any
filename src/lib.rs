@@ -174,6 +174,7 @@ mod crc_u16;
 mod crc_u32;
 mod crc_u64;
 mod crc_u8;
+mod lookup_table;
 
 pub use crc_u16::CRCu16;
 pub use crc_u32::CRCu32;
