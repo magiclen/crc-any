@@ -124,9 +124,7 @@ fn crc64_update_megabytes(bencher: &mut Bencher) {
 }
 
 fn crc64_construct_wellknown(bencher: &mut Bencher) {
-    bencher.iter(|| {
-        crc_any::CRCu64::crc64iso()
-    })
+    bencher.iter(|| crc_any::CRCu64::crc64iso())
 }
 
 fn crc64_update_megabytes_wellknown(bencher: &mut Bencher) {

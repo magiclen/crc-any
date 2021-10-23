@@ -65,7 +65,15 @@ impl CRCu64 {
                 reflect,
             )
         } else {
-            Self::create(false, LookUpTable::Static(&[0u64; 256]), poly, bits, initial, final_xor, reflect)
+            Self::create(
+                false,
+                LookUpTable::Static(&[0u64; 256]),
+                poly,
+                bits,
+                initial,
+                final_xor,
+                reflect,
+            )
         }
     }
 
