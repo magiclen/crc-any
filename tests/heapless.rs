@@ -1,7 +1,5 @@
 #![cfg(feature = "heapless")]
 
-extern crate crc_any;
-
 use crc_any::{CRCu16, CRCu32, CRCu64, CRC};
 
 #[test]

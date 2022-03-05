@@ -30,9 +30,9 @@ impl Debug for CRCu32 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
         if self.by_table {
-            impl_debug_for_struct!(CRCu64, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:08X}", self.sum), .bits, (.initial, "0x{:08X}", self.initial), (.final_xor, "0x{:08X}", self.final_xor), .reflect, .reorder);
+            debug_helper::impl_debug_for_struct!(CRCu64, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:08X}", self.sum), .bits, (.initial, "0x{:08X}", self.initial), (.final_xor, "0x{:08X}", self.final_xor), .reflect, .reorder);
         } else {
-            impl_debug_for_struct!(CRCu64, f, self, (.poly, "0x{:08X}", self.poly), (.sum, "0x{:08X}", self.sum), .bits, (.initial, "0x{:08X}", self.initial), (.final_xor, "0x{:08X}", self.final_xor), .reflect, .reorder);
+            debug_helper::impl_debug_for_struct!(CRCu64, f, self, (.poly, "0x{:08X}", self.poly), (.sum, "0x{:08X}", self.sum), .bits, (.initial, "0x{:08X}", self.initial), (.final_xor, "0x{:08X}", self.final_xor), .reflect, .reorder);
         }
     }
 }
@@ -354,7 +354,6 @@ impl CRCu32 {
     /// |0x04F03|0x1685B|0x00000|false|0x00000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc17can();
     /// crc.digest(b"123456789");
@@ -370,7 +369,6 @@ impl CRCu32 {
     /// |0x0ED841|0x102899|0x000000|false|0x000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc21can();
     /// crc.digest(b"123456789");
@@ -386,7 +384,6 @@ impl CRCu32 {
     /// |0x21CF02|0x864CFB|0xB704CE|false|0x000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc24();
     /// crc.digest(b"123456789");
@@ -405,7 +402,6 @@ impl CRCu32 {
     /// |0xC25A56|0x00065B (rev: 0xDA6000)|0x555555|true|0x000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc24ble();
     /// crc.digest(b"123456789");
@@ -424,7 +420,6 @@ impl CRCu32 {
     /// |0x7979BD|0x5D6DCB|0xFEDCBA|false|0x000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc24flexray_a();
     /// crc.digest(b"123456789");
@@ -443,7 +438,6 @@ impl CRCu32 {
     /// |0x1F23B8|0x5D6DCB|0xABCDEF|false|0x000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc24flexray_b();
     /// crc.digest(b"123456789");
@@ -462,7 +456,6 @@ impl CRCu32 {
     /// |0xCDE703|0x864CFB|0x000000|false|0x000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc24lte_a();
     /// crc.digest(b"123456789");
@@ -481,7 +474,6 @@ impl CRCu32 {
     /// |0x23EF52|0x800063|0x000000|false|0x000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc24lte_b();
     /// crc.digest(b"123456789");
@@ -500,7 +492,6 @@ impl CRCu32 {
     /// |0x200FA5|0x800063|0xFFFFFF|false|0xFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc24os9();
     /// crc.digest(b"123456789");
@@ -519,7 +510,6 @@ impl CRCu32 {
     /// |0x04C34ABF|0x2030B9C7|0x3FFFFFFF|false|0x3FFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc30cdma();
     /// crc.digest(b"123456789");
@@ -535,7 +525,6 @@ impl CRCu32 {
     /// |0xCBF43926|0x04C11DB7 (rev: 0xEDB88320)|0xFFFFFFFF|true|0xFFFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32();
     /// crc.digest(b"123456789");
@@ -556,7 +545,6 @@ impl CRCu32 {
     /// **Output will be reversed by bytes.**
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32mhash();
     /// crc.digest(b"123456789");
@@ -564,12 +552,11 @@ impl CRCu32 {
     /// assert_eq!("0x181989FC", &crc.to_string());
     /// ```
     pub fn crc32mhash() -> CRCu32 {
-        let mut crc;
-
-        // crc = Self::create_crc(0x04C11DB7, 32, 0xFFFFFFFF, 0xFFFFFFFF, false);
+        // let mut crc = Self::create_crc(0x04C11DB7, 32, 0xFFFFFFFF, 0xFFFFFFFF, false);
 
         let lookup_table = LookUpTable::Static(&NO_REF_32_04C11DB7);
-        crc = Self::create_crc_with_exists_lookup_table(
+
+        let mut crc = Self::create_crc_with_exists_lookup_table(
             lookup_table,
             32,
             0xFFFFFFFF,
@@ -587,7 +574,6 @@ impl CRCu32 {
     /// |0xFC891918|0x04C11DB7|0xFFFFFFFF|false|0xFFFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32bzip2();
     /// crc.digest(b"123456789");
@@ -606,7 +592,6 @@ impl CRCu32 {
     /// |0xE3069283|0x1EDC6F41 (rev: 0x82F63B78)|0xFFFFFFFF|true|0xFFFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32c();
     /// crc.digest(b"123456789");
@@ -625,7 +610,6 @@ impl CRCu32 {
     /// |0x87315576|0xA833982B (rev: 0xD419CC15)|0xFFFFFFFF|true|0xFFFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32d();
     /// crc.digest(b"123456789");
@@ -644,7 +628,6 @@ impl CRCu32 {
     /// |0x0376E6E7|0x04C11DB7|0xFFFFFFFF|false|0x00000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32mpeg2();
     /// crc.digest(b"123456789");
@@ -663,7 +646,6 @@ impl CRCu32 {
     /// |0x765E7680|0x04C11DB7|0x00000000|false|0xFFFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32posix();
     /// crc.digest(b"123456789");
@@ -682,7 +664,6 @@ impl CRCu32 {
     /// |0x3010BF7F|0x814141AB|0x00000000|false|0x00000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32q();
     /// crc.digest(b"123456789");
@@ -701,7 +682,6 @@ impl CRCu32 {
     /// |0x340BC6D9|0x04C11DB7 (rev: 0xEDB88320)|0xFFFFFFFF|true|0x00000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32jamcrc();
     /// crc.digest(b"123456789");
@@ -720,7 +700,6 @@ impl CRCu32 {
     /// |0xBD0BE338|0x000000AF|0x00000000|false|0x00000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32xfer();
     /// crc.digest(b"123456789");

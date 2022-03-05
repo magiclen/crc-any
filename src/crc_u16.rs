@@ -30,9 +30,9 @@ impl Debug for CRCu16 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
         if self.by_table {
-            impl_debug_for_struct!(CRCu64, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:04X}", self.sum), .bits, (.initial, "0x{:04X}", self.initial), (.final_xor, "0x{:04X}", self.final_xor), .reflect, .reorder);
+            debug_helper::impl_debug_for_struct!(CRCu64, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:04X}", self.sum), .bits, (.initial, "0x{:04X}", self.initial), (.final_xor, "0x{:04X}", self.final_xor), .reflect, .reorder);
         } else {
-            impl_debug_for_struct!(CRCu64, f, self, (.poly, "0x{:04X}", self.poly), (.sum, "0x{:04X}", self.sum), .bits, (.initial, "0x{:04X}", self.initial), (.final_xor, "0x{:04X}", self.final_xor), .reflect, .reorder);
+            debug_helper::impl_debug_for_struct!(CRCu64, f, self, (.poly, "0x{:04X}", self.poly), (.sum, "0x{:04X}", self.sum), .bits, (.initial, "0x{:04X}", self.initial), (.final_xor, "0x{:04X}", self.final_xor), .reflect, .reorder);
         }
     }
 }
@@ -354,7 +354,6 @@ impl CRCu16 {
     /// |0x199|0x233|0x000|false|0x000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc10();
     /// crc.digest(b"123456789");
@@ -370,7 +369,6 @@ impl CRCu16 {
     /// |0x233|0x3D9|0x3FF|false|0x000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc10cdma2000();
     /// crc.digest(b"123456789");
@@ -386,7 +384,6 @@ impl CRCu16 {
     /// |0x12A|0x175|0x000|false|0x3FF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc10gsm();
     /// crc.digest(b"123456789");
@@ -402,7 +399,6 @@ impl CRCu16 {
     /// |0x5A3|0x385|0x01a|false|0x000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc11();
     /// crc.digest(b"123456789");
@@ -418,7 +414,6 @@ impl CRCu16 {
     /// |0xF5B|0x80F|0x000|false|0x000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc12();
     /// crc.digest(b"123456789");
@@ -434,7 +429,6 @@ impl CRCu16 {
     /// |0xD4D|0xF13|0xFFF|false|0x000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc12cdma2000();
     /// crc.digest(b"123456789");
@@ -450,7 +444,6 @@ impl CRCu16 {
     /// |0xB34|0xD31|0x000|false|0xFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc12gsm();
     /// crc.digest(b"123456789");
@@ -466,7 +459,6 @@ impl CRCu16 {
     /// |0x04FA|0x1CF5|0x0000|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc13bbc();
     /// crc.digest(b"123456789");
@@ -482,7 +474,6 @@ impl CRCu16 {
     /// |0x082D|0x0805 (rev: 0x2804)|0x0000|true|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc14darc();
     /// crc.digest(b"123456789");
@@ -498,7 +489,6 @@ impl CRCu16 {
     /// |0x30AE|0x202D|0x0000|false|0x3FFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc14gsm();
     /// crc.digest(b"123456789");
@@ -514,7 +504,6 @@ impl CRCu16 {
     /// |0x059E|0x4599|0x0000|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc15can();
     /// crc.digest(b"123456789");
@@ -530,7 +519,6 @@ impl CRCu16 {
     /// |0x2566|0x6815|0x0000|false|0x0001|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc15mpt1327();
     /// crc.digest(b"123456789");
@@ -546,7 +534,6 @@ impl CRCu16 {
     /// |0xBB3D|0x8005 (rev: 0xA001)|0x0000|true|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16();
     /// crc.digest(b"123456789");
@@ -565,7 +552,6 @@ impl CRCu16 {
     /// |0x29B1|0x1021|0xFFFF|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16ccitt_false();
     /// crc.digest(b"123456789");
@@ -584,7 +570,6 @@ impl CRCu16 {
     /// |0xE5CC|0x1021|0x1D0F|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16aug_ccitt();
     /// crc.digest(b"123456789");
@@ -603,7 +588,6 @@ impl CRCu16 {
     /// |0xFEE8|0x8005|0x0000|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16buypass();
     /// crc.digest(b"123456789");
@@ -622,7 +606,6 @@ impl CRCu16 {
     /// |0x4C06|0xC867|0xFFFF|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16cdma2000();
     /// crc.digest(b"123456789");
@@ -641,7 +624,6 @@ impl CRCu16 {
     /// |0x9ECF|0x8005|0x800D|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16dds_110();
     /// crc.digest(b"123456789");
@@ -660,7 +642,6 @@ impl CRCu16 {
     /// |0x007E|0x0589|0x0000|false|0x0001|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16dect_r();
     /// crc.digest(b"123456789");
@@ -679,7 +660,6 @@ impl CRCu16 {
     /// |0x007F|0x0589|0x0000|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16dect_r();
     /// crc.digest(b"123456789");
@@ -698,7 +678,6 @@ impl CRCu16 {
     /// |0xEA82|0x3D65 (rev: 0xA6BC)|0x0000|true|0xFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16dnp();
     /// crc.digest(b"123456789");
@@ -717,7 +696,6 @@ impl CRCu16 {
     /// |0xC2B7|0x3D65|0x0000|false|0xFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16en_13757();
     /// crc.digest(b"123456789");
@@ -736,7 +714,6 @@ impl CRCu16 {
     /// |0xD64E|0x1021|0xFFFF|false|0xFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16genibus();
     /// crc.digest(b"123456789");
@@ -755,7 +732,6 @@ impl CRCu16 {
     /// |0x44C2|0x8005 (rev: 0xA001)|0xFFFF|true|0xFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16maxim();
     /// crc.digest(b"123456789");
@@ -774,7 +750,6 @@ impl CRCu16 {
     /// |0x6F91|0x1021 (rev: 0x8408)|0xFFFF|true|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16mcrf4cc();
     /// crc.digest(b"123456789");
@@ -793,7 +768,6 @@ impl CRCu16 {
     /// |0x63D0|0x1021 (rev: 0x8408)|0xB2AA|true|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16riello();
     /// crc.digest(b"123456789");
@@ -812,7 +786,6 @@ impl CRCu16 {
     /// |0xD0DB|0x8BB7|0x0000|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16t10_dif();
     /// crc.digest(b"123456789");
@@ -831,7 +804,6 @@ impl CRCu16 {
     /// |0x0FB3|0xA097|0x0000|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16teledisk();
     /// crc.digest(b"123456789");
@@ -850,7 +822,6 @@ impl CRCu16 {
     /// |0x26B1|0x1021 (rev: 0x8408)|0x89EC|true|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16tms13157();
     /// crc.digest(b"123456789");
@@ -869,7 +840,6 @@ impl CRCu16 {
     /// |0xB4C8|0x8005 (rev: 0xA001)|0xFFFF|true|0xFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16usb();
     /// crc.digest(b"123456789");
@@ -888,7 +858,6 @@ impl CRCu16 {
     /// |0xBF05|0x1021 (rev: 0x8408)|0xC6C6|true|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc_a();
     /// crc.digest(b"123456789");
@@ -907,7 +876,6 @@ impl CRCu16 {
     /// |0x2189|0x1021 (rev: 0x8408)|0x0000|true|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16kermit();
     /// crc.digest(b"123456789");
@@ -926,7 +894,6 @@ impl CRCu16 {
     /// |0x4B37|0x8005 (rev: 0xA001)|0xFFFF|true|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16modbus();
     /// crc.digest(b"123456789");
@@ -945,7 +912,6 @@ impl CRCu16 {
     /// |0x906E|0x8005 (rev: 0xA001)|0xFFFF|true|0xFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16_x25();
     /// crc.digest(b"123456789");
@@ -964,7 +930,6 @@ impl CRCu16 {
     /// |0x31C3|0x1021|0x0000|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16xmodem();
     /// crc.digest(b"123456789");

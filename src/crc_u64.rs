@@ -30,9 +30,9 @@ impl Debug for CRCu64 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
         if self.by_table {
-            impl_debug_for_struct!(CRCu64, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:016X}", self.sum), .bits, (.initial, "0x{:016X}", self.initial), (.final_xor, "0x{:016X}", self.final_xor), .reflect, .reorder);
+            debug_helper::impl_debug_for_struct!(CRCu64, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:016X}", self.sum), .bits, (.initial, "0x{:016X}", self.initial), (.final_xor, "0x{:016X}", self.final_xor), .reflect, .reorder);
         } else {
-            impl_debug_for_struct!(CRCu64, f, self, (.poly, "0x{:016X}", self.poly), (.sum, "0x{:016X}", self.sum), .bits, (.initial, "0x{:016X}", self.initial), (.final_xor, "0x{:016X}", self.final_xor), .reflect, .reorder);
+            debug_helper::impl_debug_for_struct!(CRCu64, f, self, (.poly, "0x{:016X}", self.poly), (.sum, "0x{:016X}", self.sum), .bits, (.initial, "0x{:016X}", self.initial), (.final_xor, "0x{:016X}", self.final_xor), .reflect, .reorder);
         }
     }
 }
@@ -354,7 +354,6 @@ impl CRCu64 {
     /// |0xD4164FC646|0x0004820009|0x0000000000|false|0xFFFFFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu64;
     /// let mut crc = CRCu64::crc40gsm();
     /// crc.digest(b"123456789");
@@ -379,7 +378,6 @@ impl CRCu64 {
     /// |0x6C40DF5F0B497347|0x42F0E1EBA9EA3693|0x0000000000000000|false|0x0000000000000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu64;
     /// let mut crc = CRCu64::crc64();
     /// crc.digest(b"123456789");
@@ -404,7 +402,6 @@ impl CRCu64 {
     /// |0xB90956C775A41001|0x000000000000001B (rev: 0xD800000000000000)|0xFFFFFFFFFFFFFFFF|true|0xFFFFFFFFFFFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu64;
     /// let mut crc = CRCu64::crc64iso();
     /// crc.digest(b"123456789");
@@ -429,7 +426,6 @@ impl CRCu64 {
     /// |0x62EC59E3F1A4F00A|0x42F0E1EBA9EA3693|0xFFFFFFFFFFFFFFFF|false|0xFFFFFFFFFFFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu64;
     /// let mut crc = CRCu64::crc64we();
     /// crc.digest(b"123456789");
@@ -454,7 +450,6 @@ impl CRCu64 {
     /// |0xE9C6D914C4B8D9CA|0xAD93D23594C935A9 (rev: 0x95AC9329AC4BC9B5)|0x0000000000000000|true|0x0000000000000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu64;
     /// let mut crc = CRCu64::crc64jones();
     /// crc.digest(b"123456789");

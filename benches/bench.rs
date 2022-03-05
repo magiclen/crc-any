@@ -1,11 +1,6 @@
-extern crate crc_any;
-
-#[macro_use]
-extern crate bencher;
-
 use crc_any::CRC;
 
-use bencher::Bencher;
+use bencher::{benchmark_group, benchmark_main, Bencher};
 
 fn crc8_construct(bencher: &mut Bencher) {
     bencher.iter(|| CRC::create_crc(0x07, 8, 0x00, 0x00, false))
@@ -15,6 +10,7 @@ fn crc8_update_megabytes(bencher: &mut Bencher) {
     let mut crc = CRC::crc8();
     let mut bytes = Vec::with_capacity(1000000);
 
+    #[allow(clippy::uninit_vec)]
     unsafe {
         bytes.set_len(1000000);
     }
@@ -34,6 +30,7 @@ fn crc12_update_megabytes(bencher: &mut Bencher) {
     let mut crc = CRC::crc12();
     let mut bytes = Vec::with_capacity(1000000);
 
+    #[allow(clippy::uninit_vec)]
     unsafe {
         bytes.set_len(1000000);
     }
@@ -53,6 +50,7 @@ fn crc16_update_megabytes(bencher: &mut Bencher) {
     let mut crc = CRC::crc16();
     let mut bytes = Vec::with_capacity(1000000);
 
+    #[allow(clippy::uninit_vec)]
     unsafe {
         bytes.set_len(1000000);
     }
@@ -65,13 +63,14 @@ fn crc16_update_megabytes(bencher: &mut Bencher) {
 }
 
 fn crc16_construct_wellknown(bencher: &mut Bencher) {
-    bencher.iter(|| crc_any::CRCu16::crc16ccitt_false())
+    bencher.iter(crc_any::CRCu16::crc16ccitt_false)
 }
 
 fn crc16_update_megabytes_wellknown(bencher: &mut Bencher) {
     let mut crc = crc_any::CRCu16::crc16ccitt_false();
     let mut bytes = Vec::with_capacity(1000000);
 
+    #[allow(clippy::uninit_vec)]
     unsafe {
         bytes.set_len(1000000);
     }
@@ -91,6 +90,7 @@ fn crc32_update_megabytes(bencher: &mut Bencher) {
     let mut crc = CRC::crc32();
     let mut bytes = Vec::with_capacity(1000000);
 
+    #[allow(clippy::uninit_vec)]
     unsafe {
         bytes.set_len(1000000);
     }
@@ -112,6 +112,7 @@ fn crc64_update_megabytes(bencher: &mut Bencher) {
     let mut crc = CRC::crc64();
     let mut bytes = Vec::with_capacity(1000000);
 
+    #[allow(clippy::uninit_vec)]
     unsafe {
         bytes.set_len(1000000);
     }
@@ -124,13 +125,14 @@ fn crc64_update_megabytes(bencher: &mut Bencher) {
 }
 
 fn crc64_construct_wellknown(bencher: &mut Bencher) {
-    bencher.iter(|| crc_any::CRCu64::crc64iso())
+    bencher.iter(crc_any::CRCu64::crc64iso)
 }
 
 fn crc64_update_megabytes_wellknown(bencher: &mut Bencher) {
     let mut crc = CRC::crc64();
     let mut bytes = Vec::with_capacity(1000000);
 
+    #[allow(clippy::uninit_vec)]
     unsafe {
         bytes.set_len(1000000);
     }

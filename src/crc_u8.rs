@@ -25,9 +25,9 @@ impl Debug for CRCu8 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
         if self.by_table {
-            impl_debug_for_struct!(CRCu64, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:02X}", self.sum), .bits, (.initial, "0x{:02X}", self.initial), (.final_xor, "0x{:02X}", self.final_xor), .reflect);
+            debug_helper::impl_debug_for_struct!(CRCu64, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:02X}", self.sum), .bits, (.initial, "0x{:02X}", self.initial), (.final_xor, "0x{:02X}", self.final_xor), .reflect);
         } else {
-            impl_debug_for_struct!(CRCu64, f, self, (.poly, "0x{:02X}", self.poly), (.sum, "0x{:02X}", self.sum), .bits, (.initial, "0x{:02X}", self.initial), (.final_xor, "0x{:02X}", self.final_xor), .reflect);
+            debug_helper::impl_debug_for_struct!(CRCu64, f, self, (.poly, "0x{:02X}", self.poly), (.sum, "0x{:02X}", self.sum), .bits, (.initial, "0x{:02X}", self.initial), (.final_xor, "0x{:02X}", self.final_xor), .reflect);
         }
     }
 }
@@ -265,7 +265,6 @@ impl CRCu8 {
     /// |0x4|0x3|0x0|false|0x7|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc3gsm();
     /// crc.digest(b"123456789");
@@ -282,7 +281,6 @@ impl CRCu8 {
     /// |0x7|0x3 (rev: 0xC)|0x0|true|0x0|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc4itu();
     /// crc.digest(b"123456789");
@@ -299,7 +297,6 @@ impl CRCu8 {
     /// |0xB|0x3|0xF|false|0xF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc4interlaken();
     /// crc.digest(b"123456789");
@@ -316,7 +313,6 @@ impl CRCu8 {
     /// |0x00|0x09|0x09|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc5epc();
     /// crc.digest(b"123456789");
@@ -333,7 +329,6 @@ impl CRCu8 {
     /// |0x07|0x15 (rev: 0x15)|0x00|true|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc5itu();
     /// crc.digest(b"123456789");
@@ -350,7 +345,6 @@ impl CRCu8 {
     /// |0x19|0x05 (rev: 0x14)|0x1F|true|0x1F|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc5usb();
     /// crc.digest(b"123456789");
@@ -367,7 +361,6 @@ impl CRCu8 {
     /// |0x0D|0x27|0x3F|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc6cdma2000_a();
     /// crc.digest(b"123456789");
@@ -384,7 +377,6 @@ impl CRCu8 {
     /// |0x3B|0x07|0x3F|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc6cdma2000_b();
     /// crc.digest(b"123456789");
@@ -401,7 +393,6 @@ impl CRCu8 {
     /// |0x26|0x19 (rev: 0x26)|0x00|true|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc6darc();
     /// crc.digest(b"123456789");
@@ -418,7 +409,6 @@ impl CRCu8 {
     /// |0x13|0x2F|0x00|false|0x3F|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc6gsm();
     /// crc.digest(b"123456789");
@@ -435,7 +425,6 @@ impl CRCu8 {
     /// |0x06|0x03 (rev: 0x30)|0x00|true|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc6itu();
     /// crc.digest(b"123456789");
@@ -452,7 +441,6 @@ impl CRCu8 {
     /// |0x75|0x09|0x00|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc7();
     /// crc.digest(b"123456789");
@@ -469,7 +457,6 @@ impl CRCu8 {
     /// |0x61|0x45|0x00|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc7umts();
     /// crc.digest(b"123456789");
@@ -486,7 +473,6 @@ impl CRCu8 {
     /// |0xF4|0x07|0x00|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8();
     /// crc.digest(b"123456789");
@@ -506,7 +492,6 @@ impl CRCu8 {
     /// |0xDA|0x9B|0xFF|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8cdma2000();
     /// crc.digest(b"123456789");
@@ -526,7 +511,6 @@ impl CRCu8 {
     /// |0x15|0x39 (rev: 0x9C)|0x00|true|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8darc();
     /// crc.digest(b"123456789");
@@ -546,7 +530,6 @@ impl CRCu8 {
     /// |0xBC|0xD5|0x00|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8dvb_s2();
     /// crc.digest(b"123456789");
@@ -566,7 +549,6 @@ impl CRCu8 {
     /// |0x97|0x1D (rev: 0xB8)|0xFF|true|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8ebu();
     /// crc.digest(b"123456789");
@@ -586,7 +568,6 @@ impl CRCu8 {
     /// |0x7E|0x1D|0xFD|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8icode();
     /// crc.digest(b"123456789");
@@ -606,7 +587,6 @@ impl CRCu8 {
     /// |0xA1|0x07|0x00|false|0x55|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8itu();
     /// crc.digest(b"123456789");
@@ -626,7 +606,6 @@ impl CRCu8 {
     /// |0xA1|0x31 (rev: 0x8C)|0x00|true|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8maxim();
     /// crc.digest(b"123456789");
@@ -646,7 +625,6 @@ impl CRCu8 {
     /// |0xD0|0x07 (rev: 0xE0)|0xFF|true|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8rohc();
     /// crc.digest(b"123456789");
@@ -666,7 +644,6 @@ impl CRCu8 {
     /// |0x25|0x9B (rev: 0xD9)|0x00|true|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRCu8;
     /// let mut crc = CRCu8::crc8wcdma();
     /// crc.digest(b"123456789");

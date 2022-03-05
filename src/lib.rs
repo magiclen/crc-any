@@ -8,8 +8,6 @@ To compute CRC values by providing the length of bits, expression, reflection, a
 You can use `create_crc` associated function to create a CRC instance by providing the length of bits, expression, reflection, an initial value and a final xor value. For example, if you want to compute a CRC-24 value.
 
 ```rust
-extern crate crc_any;
-
 use crc_any::CRC;
 
 let mut crc24 = CRC::create_crc(0x0000000000864CFB, 24, 0x0000000000B704CE, 0x0000000000000000, false);
@@ -114,8 +112,6 @@ To simplify the usage, there are several common versions of CRC whose computing 
 For instance,
 
 ```rust
-extern crate crc_any;
-
 use crc_any::CRC;
 
 let mut crc64 = CRC::crc64();
@@ -156,10 +152,6 @@ features = ["heapless"]
 #[cfg(feature = "alloc")]
 #[macro_use]
 extern crate alloc;
-
-#[cfg(feature = "alloc")]
-#[macro_use]
-extern crate debug_helper;
 
 #[cfg(feature = "alloc")]
 use alloc::fmt::{self, Display, Formatter};
@@ -375,7 +367,6 @@ impl CRC {
     /// |0x4|0x3|0x0|false|0x7|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc3gsm();
     /// crc.digest(b"123456789");
@@ -393,7 +384,6 @@ impl CRC {
     /// |0x7|0x3 (rev: 0xC)|0x0|true|0x0|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc4itu();
     /// crc.digest(b"123456789");
@@ -409,7 +399,6 @@ impl CRC {
     /// |0xB|0x3|0xF|false|0xF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc4interlaken();
     /// crc.digest(b"123456789");
@@ -427,7 +416,6 @@ impl CRC {
     /// |0x00|0x09|0x09|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc5epc();
     /// crc.digest(b"123456789");
@@ -443,7 +431,6 @@ impl CRC {
     /// |0x07|0x15 (rev: 0x15)|0x00|true|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc5itu();
     /// crc.digest(b"123456789");
@@ -459,7 +446,6 @@ impl CRC {
     /// |0x19|0x05 (rev: 0x14)|0x1F|true|0x1F|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc5usb();
     /// crc.digest(b"123456789");
@@ -477,7 +463,6 @@ impl CRC {
     /// |0x0D|0x27|0x3F|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc6cdma2000_a();
     /// crc.digest(b"123456789");
@@ -494,7 +479,6 @@ impl CRC {
     /// |0x3B|0x07|0x3F|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc6cdma2000_b();
     /// crc.digest(b"123456789");
@@ -511,7 +495,6 @@ impl CRC {
     /// |0x26|0x19 (rev: 0x26)|0x00|true|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc6darc();
     /// crc.digest(b"123456789");
@@ -528,7 +511,6 @@ impl CRC {
     /// |0x13|0x2F|0x00|false|0x3F|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc6gsm();
     /// crc.digest(b"123456789");
@@ -545,7 +527,6 @@ impl CRC {
     /// |0x06|0x03 (rev: 0x30)|0x00|true|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc6itu();
     /// crc.digest(b"123456789");
@@ -564,7 +545,6 @@ impl CRC {
     /// |0x75|0x09|0x00|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc7();
     /// crc.digest(b"123456789");
@@ -581,7 +561,6 @@ impl CRC {
     /// |0x61|0x45|0x00|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc7umts();
     /// crc.digest(b"123456789");
@@ -600,7 +579,6 @@ impl CRC {
     /// |0xF4|0x07|0x00|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8();
     /// crc.digest(b"123456789");
@@ -617,7 +595,6 @@ impl CRC {
     /// |0xDA|0x9B|0xFF|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8cdma2000();
     /// crc.digest(b"123456789");
@@ -634,7 +611,6 @@ impl CRC {
     /// |0xDA|0x39 (rev: 0x9C)|0x00|true|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8darc();
     /// crc.digest(b"123456789");
@@ -651,7 +627,6 @@ impl CRC {
     /// |0xBC|0xD5|0x00|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8dvb_s2();
     /// crc.digest(b"123456789");
@@ -668,7 +643,6 @@ impl CRC {
     /// |0x97|0x1D (rev: 0xB8)|0xFF|true|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8ebu();
     /// crc.digest(b"123456789");
@@ -685,7 +659,6 @@ impl CRC {
     /// |0x7E|0x1D|0xFD|false|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8icode();
     /// crc.digest(b"123456789");
@@ -702,7 +675,6 @@ impl CRC {
     /// |0xA1|0x07|0x00|false|0x55|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8itu();
     /// crc.digest(b"123456789");
@@ -719,7 +691,6 @@ impl CRC {
     /// |0xA1|0x31 (rev: 0x8C)|0x00|true|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8maxim();
     /// crc.digest(b"123456789");
@@ -736,7 +707,6 @@ impl CRC {
     /// |0xD0|0x07 (rev: 0xE0)|0xFF|true|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8rohc();
     /// crc.digest(b"123456789");
@@ -753,7 +723,6 @@ impl CRC {
     /// |0x25|0x9B (rev: 0xD9)|0x00|true|0x00|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8wcdma();
     /// crc.digest(b"123456789");
@@ -772,7 +741,6 @@ impl CRC {
     /// |0x199|0x233|0x000|false|0x000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc10();
     /// crc.digest(b"123456789");
@@ -789,7 +757,6 @@ impl CRC {
     /// |0x233|0x3D9|0x3FF|false|0x000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc10cdma2000();
     /// crc.digest(b"123456789");
@@ -806,7 +773,6 @@ impl CRC {
     /// |0x12A|0x175|0x000|false|0x3FF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc10gsm();
     /// crc.digest(b"123456789");
@@ -825,7 +791,6 @@ impl CRC {
     /// |0x5A3|0x385|0x01a|false|0x000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc11();
     /// crc.digest(b"123456789");
@@ -844,7 +809,6 @@ impl CRC {
     /// |0xF5B|0x080F|0x0000|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc12();
     /// crc.digest(b"123456789");
@@ -861,7 +825,6 @@ impl CRC {
     /// |0xD4D|0x0F13|0x0FFF|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc12cdma2000();
     /// crc.digest(b"123456789");
@@ -878,7 +841,6 @@ impl CRC {
     /// |0xB34|0x0D31|0x0000|false|0x0FFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc12gsm();
     /// crc.digest(b"123456789");
@@ -897,7 +859,6 @@ impl CRC {
     /// |0x04FA|0x1CF5|0x0000|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc13bbc();
     /// crc.digest(b"123456789");
@@ -916,7 +877,6 @@ impl CRC {
     /// |0x082D|0x0805 (rev: 0x2804)|0x0000|true|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc14darc();
     /// crc.digest(b"123456789");
@@ -933,7 +893,6 @@ impl CRC {
     /// |0x30AE|0x202D|0x0000|false|0x3FFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc14gsm();
     /// crc.digest(b"123456789");
@@ -952,7 +911,6 @@ impl CRC {
     /// |0x059E|0x4599|0x0000|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc15can();
     /// crc.digest(b"123456789");
@@ -969,7 +927,6 @@ impl CRC {
     /// |0x2566|0x6815|0x0000|false|0x0001|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc15mpt1327();
     /// crc.digest(b"123456789");
@@ -988,7 +945,6 @@ impl CRC {
     /// |0xBB3D|0x8005 (rev: 0xA001)|0x0000|true|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16();
     /// crc.digest(b"123456789");
@@ -1005,7 +961,6 @@ impl CRC {
     /// |0x29B1|0x1021|0xFFFF|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16ccitt_false();
     /// crc.digest(b"123456789");
@@ -1022,7 +977,6 @@ impl CRC {
     /// |0xE5CC|0x1021|0x1D0F|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16aug_ccitt();
     /// crc.digest(b"123456789");
@@ -1039,7 +993,6 @@ impl CRC {
     /// |0xFEE8|0x8005|0x0000|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16buypass();
     /// crc.digest(b"123456789");
@@ -1056,7 +1009,6 @@ impl CRC {
     /// |0x4C06|0xC867|0xFFFF|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16cdma2000();
     /// crc.digest(b"123456789");
@@ -1073,7 +1025,6 @@ impl CRC {
     /// |0x9ECF|0x8005|0x800D|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16dds_110();
     /// crc.digest(b"123456789");
@@ -1090,7 +1041,6 @@ impl CRC {
     /// |0x007E|0x0589|0x0000|false|0x0001|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16dect_r();
     /// crc.digest(b"123456789");
@@ -1107,7 +1057,6 @@ impl CRC {
     /// |0x007F|0x0589|0x0000|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16dect_r();
     /// crc.digest(b"123456789");
@@ -1124,7 +1073,6 @@ impl CRC {
     /// |0xEA82|0x3D65 (rev: 0xA6BC)|0x0000|true|0xFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16dnp();
     /// crc.digest(b"123456789");
@@ -1141,7 +1089,6 @@ impl CRC {
     /// |0xC2B7|0x3D65|0x0000|false|0xFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16en_13757();
     /// crc.digest(b"123456789");
@@ -1158,7 +1105,6 @@ impl CRC {
     /// |0xD64E|0x1021|0xFFFF|false|0xFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16genibus();
     /// crc.digest(b"123456789");
@@ -1175,7 +1121,6 @@ impl CRC {
     /// |0x44C2|0x8005 (rev: 0xA001)|0xFFFF|true|0xFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16maxim();
     /// crc.digest(b"123456789");
@@ -1192,7 +1137,6 @@ impl CRC {
     /// |0x6F91|0x1021 (rev: 0x8408)|0xFFFF|true|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16mcrf4cc();
     /// crc.digest(b"123456789");
@@ -1209,7 +1153,6 @@ impl CRC {
     /// |0x63D0|0x1021 (rev: 0x8408)|0xB2AA|true|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16riello();
     /// crc.digest(b"123456789");
@@ -1226,7 +1169,6 @@ impl CRC {
     /// |0xD0DB|0x8BB7|0x0000|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16t10_dif();
     /// crc.digest(b"123456789");
@@ -1243,7 +1185,6 @@ impl CRC {
     /// |0x0FB3|0xA097|0x0000|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16teledisk();
     /// crc.digest(b"123456789");
@@ -1260,7 +1201,6 @@ impl CRC {
     /// |0x26B1|0x1021 (rev: 0x8408)|0x89EC|true|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16tms13157();
     /// crc.digest(b"123456789");
@@ -1277,7 +1217,6 @@ impl CRC {
     /// |0xB4C8|0x8005 (rev: 0xA001)|0xFFFF|true|0xFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16usb();
     /// crc.digest(b"123456789");
@@ -1294,7 +1233,6 @@ impl CRC {
     /// |0xBF05|0x1021 (rev: 0x8408)|0xC6C6|true|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc_a();
     /// crc.digest(b"123456789");
@@ -1311,7 +1249,6 @@ impl CRC {
     /// |0x2189|0x1021 (rev: 0x8408)|0x0000|true|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16kermit();
     /// crc.digest(b"123456789");
@@ -1328,7 +1265,6 @@ impl CRC {
     /// |0x4B37|0x8005 (rev: 0xA001)|0xFFFF|true|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16modbus();
     /// crc.digest(b"123456789");
@@ -1345,7 +1281,6 @@ impl CRC {
     /// |0x906E|0x8005 (rev: 0xA001)|0xFFFF|true|0xFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16_x25();
     /// crc.digest(b"123456789");
@@ -1362,7 +1297,6 @@ impl CRC {
     /// |0x31C3|0x1021|0x0000|false|0x0000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16xmodem();
     /// crc.digest(b"123456789");
@@ -1381,7 +1315,6 @@ impl CRC {
     /// |0x04F03|0x1685B|0x00000|false|0x00000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc17can();
     /// crc.digest(b"123456789");
@@ -1400,7 +1333,6 @@ impl CRC {
     /// |0x0ED841|0x102899|0x000000|false|0x000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc21can();
     /// crc.digest(b"123456789");
@@ -1419,7 +1351,6 @@ impl CRC {
     /// |0x21CF02|0x864CFB|0xB704CE|false|0x000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc24();
     /// crc.digest(b"123456789");
@@ -1436,7 +1367,6 @@ impl CRC {
     /// |0xC25A56|0x00065B (rev: 0xDA6000)|0x555555|true|0x000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc24ble();
     /// crc.digest(b"123456789");
@@ -1453,7 +1383,6 @@ impl CRC {
     /// |0x7979BD|0x5D6DCB|0xFEDCBA|false|0x000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc24flexray_a();
     /// crc.digest(b"123456789");
@@ -1470,7 +1399,6 @@ impl CRC {
     /// |0x1F23B8|0x5D6DCB|0xABCDEF|false|0x000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc24flexray_b();
     /// crc.digest(b"123456789");
@@ -1487,7 +1415,6 @@ impl CRC {
     /// |0xCDE703|0x864CFB|0x000000|false|0x000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc24lte_a();
     /// crc.digest(b"123456789");
@@ -1504,7 +1431,6 @@ impl CRC {
     /// |0x23EF52|0x800063|0x000000|false|0x000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc24lte_b();
     /// crc.digest(b"123456789");
@@ -1521,7 +1447,6 @@ impl CRC {
     /// |0x200FA5|0x800063|0xFFFFFF|false|0xFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc24os9();
     /// crc.digest(b"123456789");
@@ -1540,7 +1465,6 @@ impl CRC {
     /// |0x04C34ABF|0x2030B9C7|0x3FFFFFFF|false|0x3FFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc30cdma();
     /// crc.digest(b"123456789");
@@ -1559,7 +1483,6 @@ impl CRC {
     /// |0xCBF43926|0x04C11DB7 (rev: 0xEDB88320)|0xFFFFFFFF|true|0xFFFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32();
     /// crc.digest(b"123456789");
@@ -1578,7 +1501,6 @@ impl CRC {
     /// **Output will be reversed by bytes.**
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32mhash();
     /// crc.digest(b"123456789");
@@ -1595,7 +1517,6 @@ impl CRC {
     /// |0xFC891918|0x04C11DB7|0xFFFFFFFF|false|0xFFFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32bzip2();
     /// crc.digest(b"123456789");
@@ -1612,7 +1533,6 @@ impl CRC {
     /// |0xE3069283|0x1EDC6F41 (rev: 0x82F63B78)|0xFFFFFFFF|true|0xFFFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32c();
     /// crc.digest(b"123456789");
@@ -1629,7 +1549,6 @@ impl CRC {
     /// |0x87315576|0xA833982B (rev: 0xD419CC15)|0xFFFFFFFF|true|0xFFFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32d();
     /// crc.digest(b"123456789");
@@ -1646,7 +1565,6 @@ impl CRC {
     /// |0x0376E6E7|0x04C11DB7|0xFFFFFFFF|false|0x00000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32mpeg2();
     /// crc.digest(b"123456789");
@@ -1663,7 +1581,6 @@ impl CRC {
     /// |0x765E7680|0x04C11DB7|0x00000000|false|0xFFFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32posix();
     /// crc.digest(b"123456789");
@@ -1680,7 +1597,6 @@ impl CRC {
     /// |0x3010BF7F|0x814141AB|0x00000000|false|0x00000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32q();
     /// crc.digest(b"123456789");
@@ -1697,7 +1613,6 @@ impl CRC {
     /// |0x340BC6D9|0x04C11DB7 (rev: 0xEDB88320)|0x00000000|true|0x00000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32jamcrc();
     /// crc.digest(b"123456789");
@@ -1714,7 +1629,6 @@ impl CRC {
     /// |0xBD0BE338|0x000000AF|0x00000000|false|0x00000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32xfer();
     /// crc.digest(b"123456789");
@@ -1733,7 +1647,6 @@ impl CRC {
     /// |0xD4164FC646|0x0004820009|0x0000000000|false|0xFFFFFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc40gsm();
     /// crc.digest(b"123456789");
@@ -1752,7 +1665,6 @@ impl CRC {
     /// |0x6C40DF5F0B497347|0x42F0E1EBA9EA3693|0x0000000000000000|false|0x0000000000000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc64();
     /// crc.digest(b"123456789");
@@ -1769,7 +1681,6 @@ impl CRC {
     /// |0xB90956C775A41001|0x000000000000001B (rev: 0xD800000000000000)|0xFFFFFFFFFFFFFFFF|true|0xFFFFFFFFFFFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc64iso();
     /// crc.digest(b"123456789");
@@ -1786,7 +1697,6 @@ impl CRC {
     /// |0x62EC59E3F1A4F00A|0x42F0E1EBA9EA3693|0xFFFFFFFFFFFFFFFF|false|0xFFFFFFFFFFFFFFFF|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc64we();
     /// crc.digest(b"123456789");
@@ -1803,7 +1713,6 @@ impl CRC {
     /// |0xE9C6D914C4B8D9CA|0xAD93D23594C935A9 (rev: 0x95AC9329AC4BC9B5)|0x0000000000000000|true|0x0000000000000000|
     ///
     /// ```
-    /// # extern crate crc_any;
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc64jones();
     /// crc.digest(b"123456789");
