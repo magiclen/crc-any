@@ -13,10 +13,11 @@ use crc_any::CRC;
 let mut crc24 = CRC::create_crc(0x0000000000864CFB, 24, 0x0000000000B704CE, 0x0000000000000000, false);
 
 crc24.digest(b"hello");
- */
+*/
 #![cfg_attr(
     feature = "alloc",
     doc = "
+
 assert_eq!([71, 245, 138].to_vec(), crc24.get_crc_vec_be());
 assert_eq!(\"0x47F58A\", &crc24.to_string());
 "
@@ -121,14 +122,19 @@ use crc_any::CRC;
 let mut crc64 = CRC::crc64();
 
 crc64.digest(b"hello");
+*/
+#![cfg_attr(
+    feature = "alloc",
+    doc = "
 
-# #[cfg(features = "alloc")]
-# {
 assert_eq!([64, 84, 74, 48, 97, 55, 182, 236].to_vec(), crc64.get_crc_vec_be());
-assert_eq!("0x40544A306137B6EC", &crc64.to_string());
-# }
+assert_eq!(\"0x40544A306137B6EC\", &crc64.to_string());
+"
+)]
+/*!
 ```
-
+*/
+/*!
 After getting a CRC value, you can still use the `digest` method to continue computing the next CRC values.
 
 ## Heapless Support
