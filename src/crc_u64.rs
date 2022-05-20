@@ -357,8 +357,7 @@ impl CRCu64 {
     /// # use crc_any::CRCu64;
     /// let mut crc = CRCu64::crc40gsm();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0xD4164FC646", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xD4164FC646\", &crc.to_string());")]
     /// ```
     pub fn crc40gsm() -> CRCu64 {
         // Self::create_crc(0x0000000004820009u64, 40, 0x0000000000000000, 0x000000FFFFFFFFFF, false)
@@ -381,8 +380,7 @@ impl CRCu64 {
     /// # use crc_any::CRCu64;
     /// let mut crc = CRCu64::crc64();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0x6C40DF5F0B497347", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x6C40DF5F0B497347\", &crc.to_string());")]
     /// ```
     pub fn crc64() -> CRCu64 {
         // Self::create_crc(0x42F0E1EBA9EA3693, 64, 0x0000000000000000, 0x0000000000000000, false)
@@ -405,8 +403,7 @@ impl CRCu64 {
     /// # use crc_any::CRCu64;
     /// let mut crc = CRCu64::crc64iso();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0xB90956C775A41001", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xB90956C775A41001\", &crc.to_string());")]
     /// ```
     pub fn crc64iso() -> CRCu64 {
         // Self::create_crc(0xD800000000000000, 64, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, true)
@@ -429,8 +426,7 @@ impl CRCu64 {
     /// # use crc_any::CRCu64;
     /// let mut crc = CRCu64::crc64we();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0x62EC59E3F1A4F00A", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x62EC59E3F1A4F00A\", &crc.to_string());")]
     /// ```
     pub fn crc64we() -> CRCu64 {
         // Self::create_crc(0x42F0E1EBA9EA3693, 64, 0xFFFFFFFFFFFFFFFF, 0xFFFFFFFFFFFFFFFF, false)
@@ -453,8 +449,7 @@ impl CRCu64 {
     /// # use crc_any::CRCu64;
     /// let mut crc = CRCu64::crc64jones();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0xE9C6D914C4B8D9CA", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xE9C6D914C4B8D9CA\", &crc.to_string());")]
     /// ```
     pub fn crc64jones() -> CRCu64 {
         // Self::create_crc(0x95AC9329AC4BC9B5, 64, 0x0000000000000000, 0x0000000000000000, true)

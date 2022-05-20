@@ -357,8 +357,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc17can();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0x04F03", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x04F03\", &crc.to_string());")]
     /// ```
     pub fn crc17can() -> CRCu32 {
         Self::create_crc(0x0001685B, 17, 0x00000000, 0x00000000, false)
@@ -372,8 +371,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc21can();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0x0ED841", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x0ED841\", &crc.to_string());")]
     /// ```
     pub fn crc21can() -> CRCu32 {
         Self::create_crc(0x00102899, 21, 0x00000000, 0x00000000, false)
@@ -387,8 +385,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc24();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0x21CF02", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x21CF02\", &crc.to_string());")]
     /// ```
     pub fn crc24() -> CRCu32 {
         // Self::create_crc(0x00864CFB, 24, 0x00B704CE, 0x00000000, false)
@@ -405,8 +402,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc24ble();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0xC25A56", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xC25A56\", &crc.to_string());")]
     /// ```
     pub fn crc24ble() -> CRCu32 {
         // Self::create_crc(0x00DA6000, 24, 0x00555555, 0x00000000, true)
@@ -423,8 +419,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc24flexray_a();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0x7979BD", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x7979BD\", &crc.to_string());")]
     /// ```
     pub fn crc24flexray_a() -> CRCu32 {
         // Self::create_crc(0x005D6DCB, 24, 0x00FEDCBA, 0x00000000, false)
@@ -441,8 +436,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc24flexray_b();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0x1F23B8", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x1F23B8\", &crc.to_string());")]
     /// ```
     pub fn crc24flexray_b() -> CRCu32 {
         // Self::create_crc(0x005D6DCB, 24, 0x00ABCDEF, 0x00000000, false)
@@ -459,8 +453,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc24lte_a();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0xCDE703", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xCDE703\", &crc.to_string());")]
     /// ```
     pub fn crc24lte_a() -> CRCu32 {
         // Self::create_crc(0x00864CFB, 24, 0x00000000, 0x00000000, false)
@@ -477,8 +470,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc24lte_b();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0x23EF52", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x23EF52\", &crc.to_string());")]
     /// ```
     pub fn crc24lte_b() -> CRCu32 {
         // Self::create_crc(0x00800063, 24, 0x00000000, 0x00000000, false)
@@ -495,8 +487,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc24os9();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0x200FA5", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x200FA5\", &crc.to_string());")]
     /// ```
     pub fn crc24os9() -> CRCu32 {
         // Self::create_crc(0x00800063, 24, 0x00FFFFFF, 0x00FFFFFF, false)
@@ -513,8 +504,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc30cdma();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0x04C34ABF", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x04C34ABF\", &crc.to_string());")]
     /// ```
     pub fn crc30cdma() -> CRCu32 {
         Self::create_crc(0x2030B9C7, 30, 0x3FFFFFFF, 0x3FFFFFFF, false)
@@ -528,8 +518,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0xCBF43926", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xCBF43926\", &crc.to_string());")]
     /// ```
     pub fn crc32() -> CRCu32 {
         // Self::create_crc(0xEDB88320, 32, 0xFFFFFFFF, 0xFFFFFFFF, true)
@@ -548,8 +537,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32mhash();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0x181989FC", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x181989FC\", &crc.to_string());")]
     /// ```
     pub fn crc32mhash() -> CRCu32 {
         // let mut crc = Self::create_crc(0x04C11DB7, 32, 0xFFFFFFFF, 0xFFFFFFFF, false);
@@ -577,8 +565,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32bzip2();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0xFC891918", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xFC891918\", &crc.to_string());")]
     /// ```
     pub fn crc32bzip2() -> CRCu32 {
         // Self::create_crc(0x04C11DB7, 32, 0xFFFFFFFF, 0xFFFFFFFF, false)
@@ -595,8 +582,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32c();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0xE3069283", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xE3069283\", &crc.to_string());")]
     /// ```
     pub fn crc32c() -> CRCu32 {
         // Self::create_crc(0x82F63B78, 32, 0xFFFFFFFF, 0xFFFFFFFF, true)
@@ -613,8 +599,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32d();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0x87315576", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x87315576\", &crc.to_string());")]
     /// ```
     pub fn crc32d() -> CRCu32 {
         // Self::create_crc(0xD419CC15, 32, 0xFFFFFFFF, 0xFFFFFFFF, true)
@@ -631,8 +616,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32mpeg2();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0x0376E6E7", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x0376E6E7\", &crc.to_string());")]
     /// ```
     pub fn crc32mpeg2() -> CRCu32 {
         // Self::create_crc(0x04C11DB7, 32, 0xFFFFFFFF, 0x00000000, false)
@@ -649,8 +633,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32posix();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0x765E7680", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x765E7680\", &crc.to_string());")]
     /// ```
     pub fn crc32posix() -> CRCu32 {
         // Self::create_crc(0x04C11DB7, 32, 0x00000000, 0xFFFFFFFF, false)
@@ -667,8 +650,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32q();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0x3010BF7F", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x3010BF7F\", &crc.to_string());")]
     /// ```
     pub fn crc32q() -> CRCu32 {
         // Self::create_crc(0x814141AB, 32, 0x00000000, 0x00000000, false)
@@ -685,8 +667,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32jamcrc();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0x340BC6D9", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x340BC6D9\", &crc.to_string());")]
     /// ```
     pub fn crc32jamcrc() -> CRCu32 {
         // Self::create_crc(0xEDB88320, 32, 0xFFFFFFFF, 0x00000000, true)
@@ -703,8 +684,7 @@ impl CRCu32 {
     /// # use crc_any::CRCu32;
     /// let mut crc = CRCu32::crc32xfer();
     /// crc.digest(b"123456789");
-    /// # #[cfg(features = "alloc")]
-    /// assert_eq!("0xBD0BE338", &crc.to_string());
+    #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xBD0BE338\", &crc.to_string());")]
     /// ```
     pub fn crc32xfer() -> CRCu32 {
         // Self::create_crc(0x000000AF, 32, 0x00000000, 0x00000000, false)
