@@ -6,23 +6,22 @@ use alloc::vec::Vec;
 #[cfg(feature = "heapless")]
 use heapless::Vec as HeaplessVec;
 
-use crate::constants::crc_u64::*;
-use crate::lookup_table::LookUpTable;
+use crate::{constants::crc_u64::*, lookup_table::LookUpTable};
 
 #[allow(clippy::upper_case_acronyms)]
 /// This struct can help you compute a CRC-64 (or CRC-x where **x** is equal or less than `64`) value.
 pub struct CRCu64 {
-    by_table: bool,
-    poly: u64,
-    lookup_table: LookUpTable<u64>,
-    sum: u64,
+    by_table:        bool,
+    poly:            u64,
+    lookup_table:    LookUpTable<u64>,
+    sum:             u64,
     pub(crate) bits: u8,
-    high_bit: u64,
-    mask: u64,
-    initial: u64,
-    final_xor: u64,
-    reflect: bool,
-    reorder: bool,
+    high_bit:        u64,
+    mask:            u64,
+    initial:         u64,
+    final_xor:       u64,
+    reflect:         bool,
+    reorder:         bool,
 }
 
 #[cfg(feature = "alloc")]
@@ -103,11 +102,7 @@ impl CRCu64 {
         let high_bit = 1 << u64::from(bits - 1);
         let mask = ((high_bit - 1) << 1) | 1;
 
-        let sum = if reflect {
-            Self::reflect_function(high_bit, initial)
-        } else {
-            initial
-        };
+        let sum = if reflect { Self::reflect_function(high_bit, initial) } else { initial };
 
         if !by_table && reflect {
             poly = Self::reflect_function(high_bit, poly);
@@ -467,10 +462,9 @@ impl CRCu64 {
 
 #[cfg(all(feature = "development", test))]
 mod tests {
-    use super::CRCu64;
+    use alloc::{fmt::Write, string::String};
 
-    use alloc::fmt::Write;
-    use alloc::string::String;
+    use super::CRCu64;
 
     #[test]
     fn print_lookup_table() {

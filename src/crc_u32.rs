@@ -6,23 +6,22 @@ use alloc::vec::Vec;
 #[cfg(feature = "heapless")]
 use heapless::Vec as HeaplessVec;
 
-use crate::constants::crc_u32::*;
-use crate::lookup_table::LookUpTable;
+use crate::{constants::crc_u32::*, lookup_table::LookUpTable};
 
 #[allow(clippy::upper_case_acronyms)]
 /// This struct can help you compute a CRC-32 (or CRC-x where **x** is equal or less than `32`) value.
 pub struct CRCu32 {
-    by_table: bool,
-    poly: u32,
-    lookup_table: LookUpTable<u32>,
-    sum: u32,
+    by_table:        bool,
+    poly:            u32,
+    lookup_table:    LookUpTable<u32>,
+    sum:             u32,
     pub(crate) bits: u8,
-    high_bit: u32,
-    mask: u32,
-    initial: u32,
-    final_xor: u32,
-    reflect: bool,
-    reorder: bool,
+    high_bit:        u32,
+    mask:            u32,
+    initial:         u32,
+    final_xor:       u32,
+    reflect:         bool,
+    reorder:         bool,
 }
 
 #[cfg(feature = "alloc")]
@@ -103,11 +102,7 @@ impl CRCu32 {
         let high_bit = 1 << u32::from(bits - 1);
         let mask = ((high_bit - 1) << 1) | 1;
 
-        let sum = if reflect {
-            Self::reflect_function(high_bit, initial)
-        } else {
-            initial
-        };
+        let sum = if reflect { Self::reflect_function(high_bit, initial) } else { initial };
 
         if !by_table && reflect {
             poly = Self::reflect_function(high_bit, poly);
@@ -696,10 +691,9 @@ impl CRCu32 {
 
 #[cfg(all(feature = "development", test))]
 mod tests {
-    use super::CRCu32;
+    use alloc::{fmt::Write, string::String};
 
-    use alloc::fmt::Write;
-    use alloc::string::String;
+    use super::CRCu32;
 
     #[test]
     fn print_lookup_table() {

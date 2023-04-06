@@ -1,23 +1,22 @@
 #[cfg(feature = "alloc")]
 use alloc::fmt::{self, Debug, Display, Formatter};
 
-use crate::constants::crc_u8::*;
-use crate::lookup_table::LookUpTable;
+use crate::{constants::crc_u8::*, lookup_table::LookUpTable};
 
 #[allow(clippy::upper_case_acronyms)]
 /// This struct can help you compute a CRC-8 (or CRC-x where **x** is equal or less than `8`) value.
 pub struct CRCu8 {
-    by_table: bool,
-    poly: u8,
-    lookup_table: LookUpTable<u8>,
-    sum: u8,
+    by_table:        bool,
+    poly:            u8,
+    lookup_table:    LookUpTable<u8>,
+    sum:             u8,
     #[cfg(any(feature = "alloc", feature = "heapless"))]
     pub(crate) bits: u8,
-    high_bit: u8,
-    mask: u8,
-    initial: u8,
-    final_xor: u8,
-    reflect: bool,
+    high_bit:        u8,
+    mask:            u8,
+    initial:         u8,
+    final_xor:       u8,
+    reflect:         bool,
 }
 
 #[cfg(feature = "alloc")]
@@ -98,11 +97,7 @@ impl CRCu8 {
         let high_bit = 1 << (bits - 1);
         let mask = ((high_bit - 1) << 1) | 1;
 
-        let sum = if reflect {
-            Self::reflect_function(high_bit, initial)
-        } else {
-            initial
-        };
+        let sum = if reflect { Self::reflect_function(high_bit, initial) } else { initial };
 
         if !by_table && reflect {
             poly = Self::reflect_function(high_bit, poly);
@@ -362,7 +357,7 @@ impl CRCu8 {
     /// ```
     #[inline]
     pub fn crc6cdma2000_a() -> CRCu8 {
-        Self::create_crc(0x27, 6, 0x3f, 0x00, false)
+        Self::create_crc(0x27, 6, 0x3F, 0x00, false)
     }
 
     /// |Check|Poly|Init|Ref|XorOut|
@@ -377,7 +372,7 @@ impl CRCu8 {
     /// ```
     #[inline]
     pub fn crc6cdma2000_b() -> CRCu8 {
-        Self::create_crc(0x07, 6, 0x3f, 0x00, false)
+        Self::create_crc(0x07, 6, 0x3F, 0x00, false)
     }
 
     /// |Check|Poly|Init|Ref|XorOut|
@@ -638,10 +633,9 @@ impl CRCu8 {
 
 #[cfg(all(feature = "development", test))]
 mod tests {
-    use super::CRCu8;
+    use alloc::{fmt::Write, string::String};
 
-    use alloc::fmt::Write;
-    use alloc::string::String;
+    use super::CRCu8;
 
     #[test]
     fn print_lookup_table() {

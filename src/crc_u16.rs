@@ -6,23 +6,22 @@ use alloc::vec::Vec;
 #[cfg(feature = "heapless")]
 use heapless::Vec as HeaplessVec;
 
-use crate::constants::crc_u16::*;
-use crate::lookup_table::LookUpTable;
+use crate::{constants::crc_u16::*, lookup_table::LookUpTable};
 
 #[allow(clippy::upper_case_acronyms)]
 /// This struct can help you compute a CRC-16 (or CRC-x where **x** is equal or less than `16`) value.
 pub struct CRCu16 {
-    by_table: bool,
-    poly: u16,
-    lookup_table: LookUpTable<u16>,
-    sum: u16,
+    by_table:        bool,
+    poly:            u16,
+    lookup_table:    LookUpTable<u16>,
+    sum:             u16,
     pub(crate) bits: u8,
-    high_bit: u16,
-    mask: u16,
-    initial: u16,
-    final_xor: u16,
-    reflect: bool,
-    reorder: bool,
+    high_bit:        u16,
+    mask:            u16,
+    initial:         u16,
+    final_xor:       u16,
+    reflect:         bool,
+    reorder:         bool,
 }
 
 #[cfg(feature = "alloc")]
@@ -103,11 +102,7 @@ impl CRCu16 {
         let high_bit = 1 << u16::from(bits - 1);
         let mask = ((high_bit - 1) << 1) | 1;
 
-        let sum = if reflect {
-            Self::reflect_function(high_bit, initial)
-        } else {
-            initial
-        };
+        let sum = if reflect { Self::reflect_function(high_bit, initial) } else { initial };
 
         if !by_table && reflect {
             poly = Self::reflect_function(high_bit, poly);
@@ -402,7 +397,7 @@ impl CRCu16 {
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x5A3\", &crc.to_string());")]
     /// ```
     pub fn crc11() -> CRCu16 {
-        Self::create_crc(0x0385, 11, 0x001a, 0x0000, false)
+        Self::create_crc(0x0385, 11, 0x001A, 0x0000, false)
     }
 
     /// |Check|Poly|Init|Ref|XorOut|
@@ -911,10 +906,9 @@ impl CRCu16 {
 
 #[cfg(all(feature = "development", test))]
 mod tests {
-    use super::CRCu16;
+    use alloc::{fmt::Write, string::String};
 
-    use alloc::fmt::Write;
-    use alloc::string::String;
+    use super::CRCu16;
 
     #[test]
     fn print_lookup_table() {

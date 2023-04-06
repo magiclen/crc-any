@@ -1,6 +1,5 @@
-use crc_any::CRC;
-
 use bencher::{benchmark_group, benchmark_main, Bencher};
+use crc_any::CRC;
 
 fn crc8_construct(bencher: &mut Bencher) {
     bencher.iter(|| CRC::create_crc(0x07, 8, 0x00, 0x00, false))

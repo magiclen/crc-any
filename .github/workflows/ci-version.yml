@@ -18,26 +18,20 @@ jobs:
           - macos-latest
           - windows-latest
         toolchain:
+          - 1.56
           - stable
           - nightly
-    name: Test ${{ matrix.toolchain }} on ${{ matrix.os }}
+        features:
+          -
+          -  --features heapless
+          -  --no-default-features
+          -  --no-default-features --features heapless
+    name: Test ${{ matrix.toolchain }} on ${{ matrix.os }} (${{ matrix.features }})
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - uses: actions/checkout@v3
+      - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
-          profile: minimal
           toolchain: ${{ matrix.toolchain }}
-          override: true
-      - run: cargo build --release
-      - run: cargo test --release
-      - run: cargo doc --release
-      - run: cargo build --release --features heapless
-      - run: cargo test --release --features heapless
-      - run: cargo doc --release --features heapless
-      - run: cargo build --release --no-default-features
-      - run: cargo test --release --no-default-features
-      - run: cargo doc --release --no-default-features
-      - run: cargo build --release --no-default-features --features heapless
-      - run: cargo test --release --no-default-features --features heapless
-      - run: cargo doc --release --no-default-features --features heapless
+      - run: cargo test --release ${{ matrix.features }}
+      - run: cargo doc --release ${{ matrix.features }}
