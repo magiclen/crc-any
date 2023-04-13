@@ -9,7 +9,6 @@ homepage = "https://magiclen.org/crc-any"
 keywords = ["hash", "crc", "crc16", "crc32", "crc64"]
 categories = ["no-std", "algorithms"]
 description = "To compute CRC values by providing the length of bits, expression, reflection, an initial value and a final xor value. It has many built-in CRC functions."
-readme = "README.md"
 license = "MIT"
 include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE", "benches/bench.rs"]
 
