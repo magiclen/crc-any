@@ -1,9 +1,9 @@
 [package]
 name = "crc-any"
-version = "2.4.3"
+version = "2.4.4"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2021"
-rust-version = "1.56"
+rust-version = "1.60"
 repository = "https://github.com/magiclen/crc-any"
 homepage = "https://magiclen.org/crc-any"
 keywords = ["hash", "crc", "crc16", "crc32", "crc64"]
