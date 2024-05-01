@@ -1,6 +1,6 @@
 [package]
 name = "crc-any"
-version = "2.4.4"
+version = "2.5.0"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2021"
 rust-version = "1.60"
@@ -19,7 +19,7 @@ version = "0.3"
 optional = true
 
 [dependencies.heapless]
-version = "0.7"
+version = "0.8"
 optional = true
 
 [dev-dependencies]
