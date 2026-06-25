@@ -1,5 +1,5 @@
-use bencher::{benchmark_group, benchmark_main, Bencher};
-use crc_any::CRC;
+use bencher::{Bencher, benchmark_group, benchmark_main};
+use crc_any::{CRC, CRCu32};
 
 fn megabyte_buffer() -> Vec<u8> {
     vec![0u8; 1_000_000]
@@ -14,7 +14,7 @@ fn crc8_update_megabytes(bencher: &mut Bencher) {
     let bytes = megabyte_buffer();
 
     bencher.iter(|| {
-        crc.digest(&bytes);
+        crc.update(&bytes);
 
         crc.get_crc()
     })
@@ -29,7 +29,7 @@ fn crc12_update_megabytes(bencher: &mut Bencher) {
     let bytes = megabyte_buffer();
 
     bencher.iter(|| {
-        crc.digest(&bytes);
+        crc.update(&bytes);
 
         crc.get_crc()
     })
@@ -44,7 +44,7 @@ fn crc16_update_megabytes(bencher: &mut Bencher) {
     let bytes = megabyte_buffer();
 
     bencher.iter(|| {
-        crc.digest(&bytes);
+        crc.update(&bytes);
 
         crc.get_crc()
     })
@@ -59,7 +59,7 @@ fn crc16_update_megabytes_wellknown(bencher: &mut Bencher) {
     let bytes = megabyte_buffer();
 
     bencher.iter(|| {
-        crc.digest(&bytes);
+        crc.update(&bytes);
 
         crc.get_crc()
     })
@@ -74,7 +74,22 @@ fn crc32_update_megabytes(bencher: &mut Bencher) {
     let bytes = megabyte_buffer();
 
     bencher.iter(|| {
-        crc.digest(&bytes);
+        crc.update(&bytes);
+
+        crc.get_crc()
+    })
+}
+
+fn crc32c_construct_wellknown(bencher: &mut Bencher) {
+    bencher.iter(CRCu32::crc32c)
+}
+
+fn crc32c_update_megabytes_wellknown(bencher: &mut Bencher) {
+    let mut crc = CRCu32::crc32c();
+    let bytes = megabyte_buffer();
+
+    bencher.iter(|| {
+        crc.update(&bytes);
 
         crc.get_crc()
     })
@@ -91,7 +106,7 @@ fn crc64_update_megabytes(bencher: &mut Bencher) {
     let bytes = megabyte_buffer();
 
     bencher.iter(|| {
-        crc.digest(&bytes);
+        crc.update(&bytes);
 
         crc.get_crc()
     })
@@ -106,7 +121,7 @@ fn crc64_update_megabytes_wellknown(bencher: &mut Bencher) {
     let bytes = megabyte_buffer();
 
     bencher.iter(|| {
-        crc.digest(&bytes);
+        crc.update(&bytes);
 
         crc.get_crc()
     })
@@ -117,7 +132,17 @@ benchmark_group!(crc12, crc12_construct, crc12_update_megabytes);
 benchmark_group!(crc16, crc16_construct, crc16_update_megabytes);
 benchmark_group!(crc16_wellknown, crc16_construct_wellknown, crc16_update_megabytes_wellknown);
 benchmark_group!(crc32, crc32_construct, crc32_update_megabytes);
+benchmark_group!(crc32c_wellknown, crc32c_construct_wellknown, crc32c_update_megabytes_wellknown);
 benchmark_group!(crc64, crc64_construct, crc64_update_megabytes);
 benchmark_group!(crc64_wellknown, crc64_construct_wellknown, crc64_update_megabytes_wellknown);
 
-benchmark_main!(crc8, crc12, crc16, crc16_wellknown, crc32, crc64, crc64_wellknown);
+benchmark_main!(
+    crc8,
+    crc12,
+    crc16,
+    crc16_wellknown,
+    crc32,
+    crc32c_wellknown,
+    crc64,
+    crc64_wellknown
+);

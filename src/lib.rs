@@ -1,32 +1,27 @@
 /*!
 # CRC Any
 
-To compute CRC values by providing the length of bits, expression, reflection, an initial value and a final xor value. It has many built-in CRC functions.
+This crate computes CRC values from a bit width, a polynomial, a reflection setting, an initial value, and a final XOR value. It also provides many built-in CRC functions for common CRC variants.
 
 ## Usage
 
-You can use `create_crc` associated function to create a CRC instance by providing the length of bits, expression, reflection, an initial value and a final xor value. For example, if you want to compute a CRC-24 value.
+Use the `create_crc` associated function to create a CRC instance. For example, the following code computes a CRC-24 value:
 
 ```rust
 use crc_any::CRC;
 
 let mut crc24 = CRC::create_crc(0x0000000000864CFB, 24, 0x0000000000B704CE, 0x0000000000000000, false);
 
-crc24.digest(b"hello");
-*/
-#![cfg_attr(
-    feature = "alloc",
-    doc = "
+crc24.update(b"hello");
 
-assert_eq!([71, 245, 138].to_vec(), crc24.get_crc_vec_be());
-assert_eq!(\"0x47F58A\", &crc24.to_string());
-"
-)]
-/*!
+# #[cfg(feature = "alloc")]
+# {
+#     assert_eq!([71, 245, 138].to_vec(), crc24.get_crc_vec_be());
+#     assert_eq!("0x47F58A", &crc24.to_string());
+# }
 ```
- */
-/*!
-To simplify the usage, there are several common versions of CRC whose computing functions are already built-in.
+
+For simpler usage, this crate also provides built-in functions for many common CRC variants:
 
  * crc3gsm
  * crc4itu
@@ -97,9 +92,9 @@ To simplify the usage, there are several common versions of CRC whose computing 
  * crc24os9
  * crc30cdma
  * crc32
-   * It also called `crc32b` in `mhash`.
+   * This is also called `crc32b` in `mhash`.
  * crc32mhash
-   * `mhash` is a common library which has two weird versions of CRC32 called `crc32` and `crc32b`. `crc32` and `crc32mhash` in this module are `crc32b` and `crc32` in mhash respectively.
+   * The `mhash` library has two CRC32 variants named `crc32` and `crc32b`. In this crate, `crc32` matches `crc32b` from `mhash`, and `crc32mhash` matches `crc32` from `mhash`.
  * crc32bzip2
  * crc32c
  * crc32d
@@ -114,32 +109,40 @@ To simplify the usage, there are several common versions of CRC whose computing 
  * crc64we
  * crc64jones
 
-For instance,
+For example:
 
 ```rust
 use crc_any::CRC;
 
 let mut crc64 = CRC::crc64();
 
-crc64.digest(b"hello");
-*/
-#![cfg_attr(
-    feature = "alloc",
-    doc = "
+crc64.update(b"hello");
 
-assert_eq!([64, 84, 74, 48, 97, 55, 182, 236].to_vec(), crc64.get_crc_vec_be());
-assert_eq!(\"0x40544A306137B6EC\", &crc64.to_string());
-"
-)]
-/*!
+# #[cfg(feature = "alloc")]
+# {
+#     assert_eq!(
+#         [64, 84, 74, 48, 97, 55, 182, 236].to_vec(),
+#         crc64.get_crc_vec_be(),
+#     );
+#     assert_eq!("0x40544A306137B6EC", &crc64.to_string());
+# }
 ```
-*/
-/*!
-After getting a CRC value, you can still use the `digest` method to continue computing the next CRC values.
 
-## Heapless Support
+After you get a CRC value, you can still call `update` to continue computing the CRC with more input data. The `digest` method is still available as a compatibility wrapper for input types that implement `AsRef<[u8]>`.
 
-To make sure this crate will not use heap memory allocation, you can disable the default features.
+## CRC-32C Hardware Acceleration
+
+CRC-32C has an optional SSE4.2 fast path on `x86` and `x86_64` targets.
+
+With the default features, the `std` feature is enabled. In this mode, the crate uses runtime CPU feature detection. The same binary can run on CPUs with or without SSE4.2: it uses the hardware-accelerated path when SSE4.2 is available, and falls back to the portable implementation otherwise.
+
+For builds that only run on CPUs known to support SSE4.2, you can enable that CPU feature at compile time, for example with `-C target-cpu=native` or `-C target-feature=+sse4.2`. This lets the crate use the SSE4.2 implementation directly for CRC-32C, without the runtime detection branch, and may also help the compiler optimize the code further.
+
+Do not enable these compile-time options for binaries that must run on older `x86` or `x86_64` CPUs without SSE4.2 support.
+
+## No Std and Heapless Support
+
+To make sure this crate does not use heap allocation, disable the default features. This also disables the `std` runtime CPU feature detection path.
 
 ```toml
 [dependencies.crc-any]
@@ -147,7 +150,7 @@ version = "*"
 default-features = false
 ```
 
-After doing that, the `get_crc_vec_be` and `get_crc_vec_le` methods can not be used. But if you still need this crate to return a `Vec` without dynamic allocation, you can enable the `heapless` feature to make the `get_crc_heapless_vec_be` and `get_crc_heapless_vec_le` methods available.
+After disabling the default features, the `get_crc_vec_be` and `get_crc_vec_le` methods are not available. If you still need this crate to return a vector-like value without dynamic allocation, enable the `heapless` feature and use the `get_crc_heapless_vec_be` and `get_crc_heapless_vec_le` methods.
 
 ```toml
 [dependencies.crc-any]
@@ -155,7 +158,7 @@ version = "*"
 default-features = false
 features = ["heapless"]
 ```
- */
+*/
 
 #![cfg_attr(not(feature = "std"), no_std)]
 
@@ -178,10 +181,10 @@ mod crc_u64;
 mod crc_u8;
 mod lookup_table;
 
+pub use crc_u8::CRCu8;
 pub use crc_u16::CRCu16;
 pub use crc_u32::CRCu32;
 pub use crc_u64::CRCu64;
-pub use crc_u8::CRCu8;
 
 #[allow(clippy::upper_case_acronyms, clippy::large_enum_variant)]
 /// This struct can help you compute a CRC value.
@@ -255,15 +258,23 @@ impl CRC {
         CRC::CRCu64(crc)
     }
 
+    /// Update the current CRC state with bytes.
+    #[inline]
+    pub fn update(&mut self, data: &[u8]) {
+        match self {
+            CRC::CRCu8(crc) => crc.update(data),
+            CRC::CRCu16(crc) => crc.update(data),
+            CRC::CRCu32(crc) => crc.update(data),
+            CRC::CRCu64(crc) => crc.update(data),
+        }
+    }
+
     /// Digest some data.
+    ///
+    /// This is a compatibility wrapper around [`CRC::update`].
     #[inline]
     pub fn digest<T: ?Sized + AsRef<[u8]>>(&mut self, data: &T) {
-        match self {
-            CRC::CRCu8(crc) => crc.digest(data),
-            CRC::CRCu16(crc) => crc.digest(data),
-            CRC::CRCu32(crc) => crc.digest(data),
-            CRC::CRCu64(crc) => crc.digest(data),
-        }
+        self.update(data.as_ref());
     }
 
     /// Reset the sum.
@@ -277,7 +288,7 @@ impl CRC {
         }
     }
 
-    /// Get the current CRC value (it always returns a `u64` value). You can continue calling `digest` method even after getting a CRC value.
+    /// Get the current CRC value (it always returns a `u64` value). You can continue calling `update` or `digest` even after getting a CRC value.
     #[inline]
     pub fn get_crc(&self) -> u64 {
         match self {
@@ -291,7 +302,7 @@ impl CRC {
 
 #[cfg(feature = "alloc")]
 impl CRC {
-    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `update` or `digest` even after getting a CRC value.
     #[inline]
     pub fn get_crc_vec_le(&self) -> Vec<u8> {
         match self {
@@ -302,7 +313,7 @@ impl CRC {
         }
     }
 
-    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `update` or `digest` even after getting a CRC value.
     #[inline]
     pub fn get_crc_vec_be(&self) -> Vec<u8> {
         match self {
@@ -316,7 +327,7 @@ impl CRC {
 
 #[cfg(feature = "heapless")]
 impl CRC {
-    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `update` or `digest` even after getting a CRC value.
     pub fn get_crc_heapless_vec_le(&self) -> HeaplessVec<u8, 8, u8> {
         let mut vec = HeaplessVec::new();
 
@@ -342,7 +353,7 @@ impl CRC {
         vec
     }
 
-    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `update` or `digest` even after getting a CRC value.
     pub fn get_crc_heapless_vec_be(&self) -> HeaplessVec<u8, 8, u8> {
         let mut vec = HeaplessVec::new();
 

@@ -8,6 +8,12 @@ use heapless::Vec as HeaplessVec;
 
 use crate::{constants::crc_u32::*, lookup_table::LookUpTable};
 
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+enum Accelerator {
+    None,
+    Crc32c,
+}
+
 #[allow(clippy::upper_case_acronyms)]
 /// This struct can help you compute a CRC-32 (or CRC-x where **x** is equal or less than `32`) value.
 pub struct CRCu32 {
@@ -22,6 +28,7 @@ pub struct CRCu32 {
     final_xor:       u32,
     reflect:         bool,
     reorder:         bool,
+    accelerator:     Accelerator,
 }
 
 #[cfg(feature = "alloc")]
@@ -49,7 +56,13 @@ impl CRCu32 {
     pub fn create_crc(poly: u32, bits: u8, initial: u32, final_xor: u32, reflect: bool) -> CRCu32 {
         debug_assert!(bits <= 32 && bits > 0);
 
-        if bits.is_multiple_of(8) {
+        let accelerator = if bits == 32 && reflect && poly == 0x82F63B78 {
+            Accelerator::Crc32c
+        } else {
+            Accelerator::None
+        };
+
+        let mut crc = if bits.is_multiple_of(8) {
             let lookup_table = if reflect {
                 LookUpTable::Dynamic(Self::crc_reflect_table(poly))
             } else {
@@ -73,7 +86,11 @@ impl CRCu32 {
                 final_xor,
                 reflect,
             )
-        }
+        };
+
+        crc.accelerator = accelerator;
+
+        crc
     }
 
     #[inline]
@@ -120,6 +137,7 @@ impl CRCu32 {
             final_xor,
             reflect,
             reorder: false,
+            accelerator: Accelerator::None,
         }
     }
 
@@ -135,27 +153,36 @@ impl CRCu32 {
         Self::reflect_function(self.high_bit, n)
     }
 
-    /// Digest some data.
-    pub fn digest<T: ?Sized + AsRef<[u8]>>(&mut self, data: &T) {
+    /// Update the current CRC state with bytes.
+    #[inline]
+    pub fn update(&mut self, data: &[u8]) {
+        if self.accelerator == Accelerator::Crc32c {
+            if let Some(sum) = crc32c_hardware_update(self.sum, data) {
+                self.sum = sum;
+
+                return;
+            }
+        }
+
         if self.by_table {
             if self.bits == 8 {
-                for n in data.as_ref().iter().copied() {
+                for n in data.iter().copied() {
                     let index = (self.sum as u8 ^ n) as usize;
                     self.sum = self.lookup_table[index];
                 }
             } else if self.reflect {
-                for n in data.as_ref().iter().copied() {
+                for n in data.iter().copied() {
                     let index = ((self.sum as u8) ^ n) as usize;
                     self.sum = (self.sum >> 8) ^ self.lookup_table[index];
                 }
             } else {
-                for n in data.as_ref().iter().copied() {
+                for n in data.iter().copied() {
                     let index = ((self.sum >> u32::from(self.bits - 8)) as u8 ^ n) as usize;
                     self.sum = (self.sum << 8) ^ self.lookup_table[index];
                 }
             }
         } else if self.reflect {
-            for n in data.as_ref().iter().copied() {
+            for n in data.iter().copied() {
                 let n = super::crc_u8::CRCu8::reflect_function(0x80, n);
 
                 let mut i = 0x80;
@@ -177,7 +204,7 @@ impl CRCu32 {
                 }
             }
         } else {
-            for n in data.as_ref().iter().copied() {
+            for n in data.iter().copied() {
                 let mut i = 0x80;
 
                 while i != 0 {
@@ -199,6 +226,14 @@ impl CRCu32 {
         }
     }
 
+    /// Digest some data.
+    ///
+    /// This is a compatibility wrapper around [`CRCu32::update`].
+    #[inline]
+    pub fn digest<T: ?Sized + AsRef<[u8]>>(&mut self, data: &T) {
+        self.update(data.as_ref());
+    }
+
     /// Reset the sum.
     pub fn reset(&mut self) {
         self.sum = if self.reflect {
@@ -208,7 +243,7 @@ impl CRCu32 {
         };
     }
 
-    /// Get the current CRC value (it always returns a `u32` value). You can continue calling `digest` method even after getting a CRC value.
+    /// Get the current CRC value (it always returns a `u32` value). You can continue calling `update` or `digest` even after getting a CRC value.
     pub fn get_crc(&self) -> u32 {
         let sum = if self.by_table || !self.reflect {
             (self.sum ^ self.final_xor) & self.mask
@@ -282,9 +317,72 @@ impl CRCu32 {
     }
 }
 
+#[inline]
+fn crc32c_hardware_update(sum: u32, data: &[u8]) -> Option<u32> {
+    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_feature = "sse4.2"))]
+    {
+        return Some(unsafe { crc32c_sse42_update(sum, data) });
+    }
+
+    #[cfg(all(
+        feature = "std",
+        any(target_arch = "x86", target_arch = "x86_64"),
+        not(target_feature = "sse4.2")
+    ))]
+    {
+        if std::is_x86_feature_detected!("sse4.2") {
+            return Some(unsafe { crc32c_sse42_update(sum, data) });
+        }
+    }
+
+    let _ = (sum, data);
+
+    None
+}
+
+#[cfg(all(target_arch = "x86_64", any(feature = "std", target_feature = "sse4.2")))]
+#[target_feature(enable = "sse4.2")]
+unsafe fn crc32c_sse42_update(mut sum: u32, data: &[u8]) -> u32 {
+    use core::arch::x86_64::{_mm_crc32_u8, _mm_crc32_u64};
+
+    let mut chunks = data.chunks_exact(8);
+
+    for chunk in &mut chunks {
+        let block = u64::from_le_bytes(chunk.try_into().unwrap());
+
+        sum = _mm_crc32_u64(sum as u64, block) as u32;
+    }
+
+    for n in chunks.remainder().iter().copied() {
+        sum = _mm_crc32_u8(sum, n);
+    }
+
+    sum
+}
+
+#[cfg(all(target_arch = "x86", any(feature = "std", target_feature = "sse4.2")))]
+#[target_feature(enable = "sse4.2")]
+unsafe fn crc32c_sse42_update(mut sum: u32, data: &[u8]) -> u32 {
+    use core::arch::x86::{_mm_crc32_u8, _mm_crc32_u32};
+
+    let mut chunks = data.chunks_exact(4);
+
+    for chunk in &mut chunks {
+        let block = u32::from_le_bytes(chunk.try_into().unwrap());
+
+        sum = _mm_crc32_u32(sum, block);
+    }
+
+    for n in chunks.remainder().iter().copied() {
+        sum = _mm_crc32_u8(sum, n);
+    }
+
+    sum
+}
+
 #[cfg(feature = "alloc")]
 impl CRCu32 {
-    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `update` or `digest` even after getting a CRC value.
     #[inline]
     pub fn get_crc_vec_le(&self) -> Vec<u8> {
         let crc = self.get_crc();
@@ -294,7 +392,7 @@ impl CRCu32 {
         crc.to_le_bytes()[..e].to_vec()
     }
 
-    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `update` or `digest` even after getting a CRC value.
     #[inline]
     pub fn get_crc_vec_be(&self) -> Vec<u8> {
         let crc = self.get_crc();
@@ -307,7 +405,7 @@ impl CRCu32 {
 
 #[cfg(feature = "heapless")]
 impl CRCu32 {
-    /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `update` or `digest` even after getting a CRC value.
     #[inline]
     pub fn get_crc_heapless_vec_le(&self) -> HeaplessVec<u8, 4, u8> {
         let crc = self.get_crc();
@@ -321,7 +419,7 @@ impl CRCu32 {
         vec
     }
 
-    /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `update` or `digest` even after getting a CRC value.
     #[inline]
     pub fn get_crc_heapless_vec_be(&self) -> HeaplessVec<u8, 4, u8> {
         let crc = self.get_crc();
@@ -576,7 +674,17 @@ impl CRCu32 {
         // Self::create_crc(0x82F63B78, 32, 0xFFFFFFFF, 0xFFFFFFFF, true)
 
         let lookup_table = LookUpTable::Static(&REF_32_82F63B78);
-        Self::create_crc_with_exists_lookup_table(lookup_table, 32, 0xFFFFFFFF, 0xFFFFFFFF, true)
+        let mut crc = Self::create_crc_with_exists_lookup_table(
+            lookup_table,
+            32,
+            0xFFFFFFFF,
+            0xFFFFFFFF,
+            true,
+        );
+
+        crc.accelerator = Accelerator::Crc32c;
+
+        crc
     }
 
     /// |Check|Poly|Init|Ref|XorOut|

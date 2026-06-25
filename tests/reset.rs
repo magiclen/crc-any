@@ -1,6 +1,25 @@
-use crc_any::{CRCu16, CRCu32, CRCu64, CRC};
+use crc_any::{CRC, CRCu16, CRCu32, CRCu64};
 
 const CHECK_INPUT: &[u8] = b"123456789";
+
+#[test]
+fn update_matches_digest() {
+    let mut digest_crc = CRCu32::crc32c();
+    digest_crc.digest(CHECK_INPUT);
+
+    let mut update_crc = CRCu32::crc32c();
+    update_crc.update(CHECK_INPUT);
+
+    assert_eq!(digest_crc.get_crc(), update_crc.get_crc());
+
+    let mut digest_crc = CRC::crc64();
+    digest_crc.digest(CHECK_INPUT);
+
+    let mut update_crc = CRC::crc64();
+    update_crc.update(CHECK_INPUT);
+
+    assert_eq!(digest_crc.get_crc(), update_crc.get_crc());
+}
 
 #[test]
 fn reset_matches_fresh_for_reflected_crc16() {

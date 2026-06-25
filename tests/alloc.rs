@@ -1,6 +1,6 @@
 #![cfg(feature = "alloc")]
 
-use crc_any::{CRCu16, CRCu32, CRCu64, CRC};
+use crc_any::{CRC, CRCu16, CRCu32, CRCu64};
 
 #[test]
 fn crc() {

@@ -130,15 +130,33 @@ impl CRCu8 {
         Self::reflect_function(self.high_bit, n)
     }
 
-    /// Digest some data.
-    pub fn digest<T: ?Sized + AsRef<[u8]>>(&mut self, data: &T) {
+    /// Update the current CRC state with bytes.
+    #[inline]
+    pub fn update(&mut self, data: &[u8]) {
         if self.by_table {
-            for n in data.as_ref().iter().copied() {
-                let index = (self.sum ^ n) as usize;
-                self.sum = self.lookup_table[index];
+            let table = &self.lookup_table;
+            let mut sum = self.sum;
+
+            let mut chunks = data.chunks_exact(8);
+
+            for chunk in &mut chunks {
+                sum = table[(sum ^ chunk[0]) as usize];
+                sum = table[(sum ^ chunk[1]) as usize];
+                sum = table[(sum ^ chunk[2]) as usize];
+                sum = table[(sum ^ chunk[3]) as usize];
+                sum = table[(sum ^ chunk[4]) as usize];
+                sum = table[(sum ^ chunk[5]) as usize];
+                sum = table[(sum ^ chunk[6]) as usize];
+                sum = table[(sum ^ chunk[7]) as usize];
             }
+
+            for n in chunks.remainder().iter().copied() {
+                sum = table[(sum ^ n) as usize];
+            }
+
+            self.sum = sum;
         } else if self.reflect {
-            for n in data.as_ref().iter().copied() {
+            for n in data.iter().copied() {
                 let n = Self::reflect_function(0x80, n);
 
                 let mut i = 0x80;
@@ -160,7 +178,7 @@ impl CRCu8 {
                 }
             }
         } else {
-            for n in data.as_ref().iter().copied() {
+            for n in data.iter().copied() {
                 let mut i = 0x80;
 
                 while i != 0 {
@@ -182,6 +200,14 @@ impl CRCu8 {
         }
     }
 
+    /// Digest some data.
+    ///
+    /// This is a compatibility wrapper around [`CRCu8::update`].
+    #[inline]
+    pub fn digest<T: ?Sized + AsRef<[u8]>>(&mut self, data: &T) {
+        self.update(data.as_ref());
+    }
+
     /// Reset the sum.
     #[inline]
     pub fn reset(&mut self) {
@@ -192,7 +218,7 @@ impl CRCu8 {
         };
     }
 
-    /// Get the current CRC value (it always returns a `u8` value). You can continue calling `digest` method even after getting a CRC value.
+    /// Get the current CRC value (it always returns a `u8` value). You can continue calling `update` or `digest` even after getting a CRC value.
     #[inline]
     pub fn get_crc(&self) -> u8 {
         if self.by_table || !self.reflect {

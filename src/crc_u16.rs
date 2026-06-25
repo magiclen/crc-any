@@ -135,27 +135,28 @@ impl CRCu16 {
         Self::reflect_function(self.high_bit, n)
     }
 
-    /// Digest some data.
-    pub fn digest<T: ?Sized + AsRef<[u8]>>(&mut self, data: &T) {
+    /// Update the current CRC state with bytes.
+    #[inline]
+    pub fn update(&mut self, data: &[u8]) {
         if self.by_table {
             if self.bits == 8 {
-                for n in data.as_ref().iter().copied() {
+                for n in data.iter().copied() {
                     let index = (self.sum as u8 ^ n) as usize;
                     self.sum = self.lookup_table[index];
                 }
             } else if self.reflect {
-                for n in data.as_ref().iter().copied() {
+                for n in data.iter().copied() {
                     let index = ((self.sum as u8) ^ n) as usize;
                     self.sum = (self.sum >> 8) ^ self.lookup_table[index];
                 }
             } else {
-                for n in data.as_ref().iter().copied() {
+                for n in data.iter().copied() {
                     let index = ((self.sum >> u16::from(self.bits - 8)) as u8 ^ n) as usize;
                     self.sum = (self.sum << 8) ^ self.lookup_table[index];
                 }
             }
         } else if self.reflect {
-            for n in data.as_ref().iter().copied() {
+            for n in data.iter().copied() {
                 let n = super::crc_u8::CRCu8::reflect_function(0x80, n);
 
                 let mut i = 0x80;
@@ -177,7 +178,7 @@ impl CRCu16 {
                 }
             }
         } else {
-            for n in data.as_ref().iter().copied() {
+            for n in data.iter().copied() {
                 let mut i = 0x80;
 
                 while i != 0 {
@@ -199,6 +200,14 @@ impl CRCu16 {
         }
     }
 
+    /// Digest some data.
+    ///
+    /// This is a compatibility wrapper around [`CRCu16::update`].
+    #[inline]
+    pub fn digest<T: ?Sized + AsRef<[u8]>>(&mut self, data: &T) {
+        self.update(data.as_ref());
+    }
+
     /// Reset the sum.
     pub fn reset(&mut self) {
         self.sum = if self.reflect {
@@ -208,7 +217,7 @@ impl CRCu16 {
         };
     }
 
-    /// Get the current CRC value (it always returns a `u16` value). You can continue calling `digest` method even after getting a CRC value.
+    /// Get the current CRC value (it always returns a `u16` value). You can continue calling `update` or `digest` even after getting a CRC value.
     pub fn get_crc(&self) -> u16 {
         let sum = if self.by_table || !self.reflect {
             (self.sum ^ self.final_xor) & self.mask
@@ -284,7 +293,7 @@ impl CRCu16 {
 
 #[cfg(feature = "alloc")]
 impl CRCu16 {
-    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `update` or `digest` even after getting a CRC value.
     #[inline]
     pub fn get_crc_vec_le(&self) -> Vec<u8> {
         let crc = self.get_crc();
@@ -294,7 +303,7 @@ impl CRCu16 {
         crc.to_le_bytes()[..e].to_vec()
     }
 
-    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `update` or `digest` even after getting a CRC value.
     #[inline]
     pub fn get_crc_vec_be(&self) -> Vec<u8> {
         let crc = self.get_crc();
@@ -307,7 +316,7 @@ impl CRCu16 {
 
 #[cfg(feature = "heapless")]
 impl CRCu16 {
-    /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `update` or `digest` even after getting a CRC value.
     #[inline]
     pub fn get_crc_heapless_vec_le(&self) -> HeaplessVec<u8, 2, u8> {
         let crc = self.get_crc();
@@ -321,7 +330,7 @@ impl CRCu16 {
         vec
     }
 
-    /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
+    /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `update` or `digest` even after getting a CRC value.
     #[inline]
     pub fn get_crc_heapless_vec_be(&self) -> HeaplessVec<u8, 2, u8> {
         let crc = self.get_crc();
