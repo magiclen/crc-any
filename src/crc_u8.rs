@@ -44,7 +44,7 @@ impl CRCu8 {
     pub fn create_crc(poly: u8, bits: u8, initial: u8, final_xor: u8, reflect: bool) -> CRCu8 {
         debug_assert!(bits <= 8 && bits > 0);
 
-        if bits % 8 == 0 {
+        if bits.is_multiple_of(8) {
             let lookup_table = if reflect {
                 LookUpTable::Dynamic(Self::crc_reflect_table(poly))
             } else {
@@ -79,7 +79,7 @@ impl CRCu8 {
         final_xor: u8,
         reflect: bool,
     ) -> CRCu8 {
-        debug_assert!(bits % 8 == 0);
+        debug_assert!(bits.is_multiple_of(8));
 
         Self::create(true, lookup_table, 0, bits, initial, final_xor, reflect)
     }
@@ -120,20 +120,9 @@ impl CRCu8 {
 
     #[inline]
     pub(crate) fn reflect_function(high_bit: u8, n: u8) -> u8 {
-        let mut i = high_bit;
-        let mut j = 1;
-        let mut out = 0;
+        let bits = high_bit.trailing_zeros() + 1;
 
-        while i != 0 {
-            if n & i != 0 {
-                out |= j;
-            }
-
-            j <<= 1;
-            i >>= 1;
-        }
-
-        out
+        n.reverse_bits() >> (u8::BITS - bits)
     }
 
     #[inline]

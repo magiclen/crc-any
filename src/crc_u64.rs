@@ -49,7 +49,7 @@ impl CRCu64 {
     pub fn create_crc(poly: u64, bits: u8, initial: u64, final_xor: u64, reflect: bool) -> CRCu64 {
         debug_assert!(bits <= 64 && bits > 0);
 
-        if bits % 8 == 0 {
+        if bits.is_multiple_of(8) {
             let lookup_table = if reflect {
                 LookUpTable::Dynamic(Self::crc_reflect_table(poly))
             } else {
@@ -76,7 +76,7 @@ impl CRCu64 {
         }
     }
 
-    /// Create a `CRCu64` instance by providing an existing lookup table, the length of bits, expression, reflection, an initial value and a final xor value.
+    #[inline]
     pub(crate) fn create_crc_with_exists_lookup_table(
         lookup_table: LookUpTable<u64>,
         bits: u8,
@@ -84,7 +84,7 @@ impl CRCu64 {
         final_xor: u64,
         reflect: bool,
     ) -> CRCu64 {
-        debug_assert!(bits % 8 == 0);
+        debug_assert!(bits.is_multiple_of(8));
 
         Self::create(true, lookup_table, 0, bits, initial, final_xor, reflect)
     }
@@ -125,20 +125,9 @@ impl CRCu64 {
 
     #[inline]
     fn reflect_function(high_bit: u64, n: u64) -> u64 {
-        let mut i = high_bit;
-        let mut j = 1;
-        let mut out = 0;
+        let bits = high_bit.trailing_zeros() + 1;
 
-        while i != 0 {
-            if n & i != 0 {
-                out |= j;
-            }
-
-            j <<= 1;
-            i >>= 1;
-        }
-
-        out
+        n.reverse_bits() >> (u64::BITS - bits)
     }
 
     #[inline]
@@ -230,7 +219,7 @@ impl CRCu64 {
         if self.reorder {
             let mut new_sum = 0;
 
-            let e = (self.bits as u64 + 7) >> 3;
+            let e = u64::from(self.bits).div_ceil(8);
 
             let e_dec = e - 1;
 
@@ -300,7 +289,7 @@ impl CRCu64 {
     pub fn get_crc_vec_le(&self) -> Vec<u8> {
         let crc = self.get_crc();
 
-        let e = (self.bits as usize + 7) >> 3;
+        let e = usize::from(self.bits).div_ceil(8);
 
         crc.to_le_bytes()[..e].to_vec()
     }
@@ -310,7 +299,7 @@ impl CRCu64 {
     pub fn get_crc_vec_be(&self) -> Vec<u8> {
         let crc = self.get_crc();
 
-        let e = (self.bits as usize + 7) >> 3;
+        let e = usize::from(self.bits).div_ceil(8);
 
         crc.to_be_bytes()[(8 - e)..].to_vec()
     }
@@ -320,10 +309,10 @@ impl CRCu64 {
 impl CRCu64 {
     /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
     #[inline]
-    pub fn get_crc_heapless_vec_le(&self) -> HeaplessVec<u8, 8> {
+    pub fn get_crc_heapless_vec_le(&self) -> HeaplessVec<u8, 8, u8> {
         let crc = self.get_crc();
 
-        let e = (self.bits as usize + 7) >> 3;
+        let e = usize::from(self.bits).div_ceil(8);
 
         let mut vec = HeaplessVec::new();
 
@@ -334,10 +323,10 @@ impl CRCu64 {
 
     /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
     #[inline]
-    pub fn get_crc_heapless_vec_be(&self) -> HeaplessVec<u8, 8> {
+    pub fn get_crc_heapless_vec_be(&self) -> HeaplessVec<u8, 8, u8> {
         let crc = self.get_crc();
 
-        let e = (self.bits as usize + 7) >> 3;
+        let e = usize::from(self.bits).div_ceil(8);
 
         let mut vec = HeaplessVec::new();
 

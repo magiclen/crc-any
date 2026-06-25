@@ -1,6 +1,7 @@
 #![cfg(feature = "heapless")]
 
 use crc_any::{CRCu16, CRCu32, CRCu64, CRC};
+use heapless::Vec as HeaplessVec;
 
 #[test]
 fn crc() {
@@ -75,4 +76,27 @@ fn crc_u64() {
 
     assert_eq!(vec![90, 94, 5, 195, 152], crc.get_crc_heapless_vec_be().to_vec());
     assert_eq!(vec![152, 195, 5, 94, 90], crc.get_crc_heapless_vec_le().to_vec());
+}
+
+#[test]
+fn heapless_getters_use_u8_len_type() {
+    let mut crc = CRC::crc64();
+
+    crc.digest(b"https://magiclen.org");
+
+    let be: HeaplessVec<u8, 8, u8> = crc.get_crc_heapless_vec_be();
+    let le: HeaplessVec<u8, 8, u8> = crc.get_crc_heapless_vec_le();
+
+    assert_eq!(vec![46, 219, 104, 85, 36, 10, 96, 248], be.to_vec());
+    assert_eq!(vec![248, 96, 10, 36, 85, 104, 219, 46], le.to_vec());
+
+    let mut crc = CRCu16::crc16();
+
+    crc.digest(b"https://magiclen.org");
+
+    let be: HeaplessVec<u8, 2, u8> = crc.get_crc_heapless_vec_be();
+    let le: HeaplessVec<u8, 2, u8> = crc.get_crc_heapless_vec_le();
+
+    assert_eq!(vec![77, 150], be.to_vec());
+    assert_eq!(vec![150, 77], le.to_vec());
 }

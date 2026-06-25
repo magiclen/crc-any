@@ -49,7 +49,7 @@ impl CRCu16 {
     pub fn create_crc(poly: u16, bits: u8, initial: u16, final_xor: u16, reflect: bool) -> CRCu16 {
         debug_assert!(bits <= 16 && bits > 0);
 
-        if bits % 8 == 0 {
+        if bits.is_multiple_of(8) {
             let lookup_table = if reflect {
                 LookUpTable::Dynamic(Self::crc_reflect_table(poly))
             } else {
@@ -84,7 +84,7 @@ impl CRCu16 {
         final_xor: u16,
         reflect: bool,
     ) -> CRCu16 {
-        debug_assert!(bits % 8 == 0);
+        debug_assert!(bits.is_multiple_of(8));
 
         Self::create(true, lookup_table, 0, bits, initial, final_xor, reflect)
     }
@@ -125,20 +125,9 @@ impl CRCu16 {
 
     #[inline]
     fn reflect_function(high_bit: u16, n: u16) -> u16 {
-        let mut i = high_bit;
-        let mut j = 1;
-        let mut out = 0;
+        let bits = high_bit.trailing_zeros() + 1;
 
-        while i != 0 {
-            if n & i != 0 {
-                out |= j;
-            }
-
-            j <<= 1;
-            i >>= 1;
-        }
-
-        out
+        n.reverse_bits() >> (u16::BITS - bits)
     }
 
     #[inline]
@@ -230,7 +219,7 @@ impl CRCu16 {
         if self.reorder {
             let mut new_sum = 0;
 
-            let e = (self.bits as u16 + 7) >> 3;
+            let e = u16::from(self.bits).div_ceil(8);
 
             let e_dec = e - 1;
 
@@ -300,7 +289,7 @@ impl CRCu16 {
     pub fn get_crc_vec_le(&self) -> Vec<u8> {
         let crc = self.get_crc();
 
-        let e = (self.bits as usize + 7) >> 3;
+        let e = usize::from(self.bits).div_ceil(8);
 
         crc.to_le_bytes()[..e].to_vec()
     }
@@ -310,7 +299,7 @@ impl CRCu16 {
     pub fn get_crc_vec_be(&self) -> Vec<u8> {
         let crc = self.get_crc();
 
-        let e = (self.bits as usize + 7) >> 3;
+        let e = usize::from(self.bits).div_ceil(8);
 
         crc.to_be_bytes()[(2 - e)..].to_vec()
     }
@@ -320,10 +309,10 @@ impl CRCu16 {
 impl CRCu16 {
     /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
     #[inline]
-    pub fn get_crc_heapless_vec_le(&self) -> HeaplessVec<u8, 2> {
+    pub fn get_crc_heapless_vec_le(&self) -> HeaplessVec<u8, 2, u8> {
         let crc = self.get_crc();
 
-        let e = (self.bits as usize + 7) >> 3;
+        let e = usize::from(self.bits).div_ceil(8);
 
         let mut vec = HeaplessVec::new();
 
@@ -334,10 +323,10 @@ impl CRCu16 {
 
     /// Get the current CRC value (it always returns a heapless vec instance with a length corresponding to the CRC bits). You can continue calling `digest` method even after getting a CRC value.
     #[inline]
-    pub fn get_crc_heapless_vec_be(&self) -> HeaplessVec<u8, 2> {
+    pub fn get_crc_heapless_vec_be(&self) -> HeaplessVec<u8, 2, u8> {
         let crc = self.get_crc();
 
-        let e = (self.bits as usize + 7) >> 3;
+        let e = usize::from(self.bits).div_ceil(8);
 
         let mut vec = HeaplessVec::new();
 
