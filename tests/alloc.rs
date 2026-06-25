@@ -76,3 +76,38 @@ fn crc_u64() {
     assert_eq!(vec![90, 94, 5, 195, 152], crc.get_crc_vec_be());
     assert_eq!(vec![152, 195, 5, 94, 90], crc.get_crc_vec_le());
 }
+
+#[test]
+fn immutable_getters() {
+    let mut crc = CRC::crc32c();
+    crc.digest(b"https://magiclen.org");
+    let crc = crc;
+
+    assert_eq!(0x3E3CD9E7, crc.get_crc());
+    assert_eq!(vec![62, 60, 217, 231], crc.get_crc_vec_be());
+    assert_eq!(vec![231, 217, 60, 62], crc.get_crc_vec_le());
+
+    let mut crc = CRCu16::crc16();
+    crc.digest(b"https://magiclen.org");
+    let crc = crc;
+
+    assert_eq!(0x4D96, crc.get_crc());
+    assert_eq!(vec![77, 150], crc.get_crc_vec_be());
+    assert_eq!(vec![150, 77], crc.get_crc_vec_le());
+
+    let mut crc = CRCu32::crc32();
+    crc.digest(b"https://magiclen.org");
+    let crc = crc;
+
+    assert_eq!(0x9D8C7472, crc.get_crc());
+    assert_eq!(vec![157, 140, 116, 114], crc.get_crc_vec_be());
+    assert_eq!(vec![114, 116, 140, 157], crc.get_crc_vec_le());
+
+    let mut crc = CRCu64::crc64();
+    crc.digest(b"https://magiclen.org");
+    let crc = crc;
+
+    assert_eq!(0x2EDB6855240A60F8, crc.get_crc());
+    assert_eq!(vec![46, 219, 104, 85, 36, 10, 96, 248], crc.get_crc_vec_be());
+    assert_eq!(vec![248, 96, 10, 36, 85, 104, 219, 46], crc.get_crc_vec_le());
+}

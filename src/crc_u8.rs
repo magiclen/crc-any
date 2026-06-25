@@ -24,9 +24,9 @@ impl Debug for CRCu8 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
         if self.by_table {
-            debug_helper::impl_debug_for_struct!(CRCu64, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:02X}", self.sum), .bits, (.initial, "0x{:02X}", self.initial), (.final_xor, "0x{:02X}", self.final_xor), .reflect);
+            debug_helper::impl_debug_for_struct!(CRCu8, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:02X}", self.sum), .bits, (.initial, "0x{:02X}", self.initial), (.final_xor, "0x{:02X}", self.final_xor), .reflect);
         } else {
-            debug_helper::impl_debug_for_struct!(CRCu64, f, self, (.poly, "0x{:02X}", self.poly), (.sum, "0x{:02X}", self.sum), .bits, (.initial, "0x{:02X}", self.initial), (.final_xor, "0x{:02X}", self.final_xor), .reflect);
+            debug_helper::impl_debug_for_struct!(CRCu8, f, self, (.poly, "0x{:02X}", self.poly), (.sum, "0x{:02X}", self.sum), .bits, (.initial, "0x{:02X}", self.initial), (.final_xor, "0x{:02X}", self.final_xor), .reflect);
         }
     }
 }
@@ -196,7 +196,11 @@ impl CRCu8 {
     /// Reset the sum.
     #[inline]
     pub fn reset(&mut self) {
-        self.sum = self.initial;
+        self.sum = if self.reflect {
+            Self::reflect_function(self.high_bit, self.initial)
+        } else {
+            self.initial
+        };
     }
 
     /// Get the current CRC value (it always returns a `u8` value). You can continue calling `digest` method even after getting a CRC value.

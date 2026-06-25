@@ -10,7 +10,7 @@ keywords = ["hash", "crc", "crc16", "crc32", "crc64"]
 categories = ["no-std", "algorithms"]
 description = "To compute CRC values by providing the length of bits, expression, reflection, an initial value and a final xor value. It has many built-in CRC functions."
 license = "MIT"
-include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE", "benches/bench.rs"]
+include = ["src/**/*", "Cargo.toml", "README.md", "LICENSE"]
 
 [dependencies]
 
@@ -28,7 +28,7 @@ bencher = "0.1.5"
 [features]
 default = ["alloc"]
 alloc = ["debug-helper"]
-std = []
+std = ["alloc"]
 development = ["std"]
 
 [[bench]]
