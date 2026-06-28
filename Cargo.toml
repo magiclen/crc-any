@@ -1,6 +1,6 @@
 [package]
 name = "crc-any"
-version = "3.0.0"
+version = "3.0.1"
 authors = ["Magic Len <len@magiclen.org>"]
 edition = "2024"
 rust-version = "1.87"
@@ -27,7 +27,7 @@ bencher = "0.1.5"
 
 [features]
 default = ["std"]
-alloc = ["debug-helper"]
+alloc = ["dep:debug-helper"]
 std = ["alloc"]
 development = ["std"]
 
