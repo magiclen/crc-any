@@ -258,11 +258,14 @@ impl CRCu64 {
 
         let mask2 = ((mask1 - 1) << 1) | 1;
 
+        // The first `bits - 8` shifts never XOR the polynomial, so start from the shifted index directly.
+        let shift = u64::from(bits - 8);
+
         for (i, e) in lookup_table.iter_mut().enumerate() {
-            let mut v = i as u64;
+            let mut v = (i as u64) << shift;
 
             #[allow(clippy::branches_sharing_code)]
-            for _ in 0..bits {
+            for _ in 0..8u8 {
                 if v & mask1 == 0 {
                     v <<= 1;
                 } else {
