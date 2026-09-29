@@ -10,12 +10,14 @@ use heapless::Vec as HeaplessVec;
 use crate::lookup_table::slice_by_8;
 use crate::{
     constants::crc_u32::*,
+    hardware,
     lookup_table::{LookUpTable, SLICES, Tables},
 };
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 enum Accelerator {
     None,
+    Crc32,
     Crc32c,
 }
 
@@ -71,8 +73,12 @@ impl CRCu32 {
             reflect,
         );
 
-        if bits == 32 && reflect && poly == 0x82F63B78 {
-            crc.accelerator = Accelerator::Crc32c;
+        if bits == 32 && reflect {
+            crc.accelerator = match poly {
+                0xEDB88320 => Accelerator::Crc32,
+                0x82F63B78 => Accelerator::Crc32c,
+                _ => Accelerator::None,
+            };
         }
 
         crc
@@ -113,12 +119,16 @@ impl CRCu32 {
     /// Update the current CRC state with bytes.
     #[inline]
     pub fn update(&mut self, data: &[u8]) {
-        if self.accelerator == Accelerator::Crc32c {
-            if let Some(sum) = crc32c_hardware_update(self.sum, data) {
-                self.sum = sum;
+        let hardware_sum = match self.accelerator {
+            Accelerator::None => None,
+            Accelerator::Crc32 => hardware::crc32_update(self.sum, data),
+            Accelerator::Crc32c => hardware::crc32c_update(self.sum, data),
+        };
 
-                return;
-            }
+        if let Some(sum) = hardware_sum {
+            self.sum = sum;
+
+            return;
         }
 
         let tables = &*self.lookup_table;
@@ -303,77 +313,6 @@ impl CRCu32 {
 
         tables
     }
-}
-
-#[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_feature = "sse4.2"))]
-#[inline]
-fn crc32c_hardware_update(sum: u32, data: &[u8]) -> Option<u32> {
-    // SAFETY: SSE4.2 is enabled at compile time.
-    Some(unsafe { crc32c_sse42_update(sum, data) })
-}
-
-#[cfg(all(
-    feature = "std",
-    any(target_arch = "x86", target_arch = "x86_64"),
-    not(target_feature = "sse4.2")
-))]
-#[inline]
-fn crc32c_hardware_update(sum: u32, data: &[u8]) -> Option<u32> {
-    if std::is_x86_feature_detected!("sse4.2") {
-        // SAFETY: SSE4.2 is detected at runtime.
-        Some(unsafe { crc32c_sse42_update(sum, data) })
-    } else {
-        None
-    }
-}
-
-#[cfg(not(all(
-    any(target_arch = "x86", target_arch = "x86_64"),
-    any(feature = "std", target_feature = "sse4.2")
-)))]
-#[inline]
-fn crc32c_hardware_update(_sum: u32, _data: &[u8]) -> Option<u32> {
-    None
-}
-
-#[cfg(all(target_arch = "x86_64", any(feature = "std", target_feature = "sse4.2")))]
-#[target_feature(enable = "sse4.2")]
-unsafe fn crc32c_sse42_update(mut sum: u32, data: &[u8]) -> u32 {
-    use core::arch::x86_64::{_mm_crc32_u8, _mm_crc32_u64};
-
-    let mut chunks = data.chunks_exact(8);
-
-    for chunk in &mut chunks {
-        let block = u64::from_le_bytes(chunk.try_into().unwrap());
-
-        sum = _mm_crc32_u64(sum as u64, block) as u32;
-    }
-
-    for n in chunks.remainder().iter().copied() {
-        sum = _mm_crc32_u8(sum, n);
-    }
-
-    sum
-}
-
-#[cfg(all(target_arch = "x86", any(feature = "std", target_feature = "sse4.2")))]
-#[target_feature(enable = "sse4.2")]
-unsafe fn crc32c_sse42_update(mut sum: u32, data: &[u8]) -> u32 {
-    use core::arch::x86::{_mm_crc32_u8, _mm_crc32_u32};
-
-    let mut chunks = data.chunks_exact(4);
-
-    for chunk in &mut chunks {
-        let block = u32::from_le_bytes(chunk.try_into().unwrap());
-
-        sum = _mm_crc32_u32(sum, block);
-    }
-
-    for n in chunks.remainder().iter().copied() {
-        sum = _mm_crc32_u8(sum, n);
-    }
-
-    sum
 }
 
 #[cfg(feature = "alloc")]
@@ -615,7 +554,17 @@ impl CRCu32 {
         // Self::create_crc(0xEDB88320, 32, 0xFFFFFFFF, 0xFFFFFFFF, true)
 
         let lookup_table = LookUpTable::Static(&REF_32_EDB88320);
-        Self::create_crc_with_exists_lookup_table(lookup_table, 32, 0xFFFFFFFF, 0xFFFFFFFF, true)
+        let mut crc = Self::create_crc_with_exists_lookup_table(
+            lookup_table,
+            32,
+            0xFFFFFFFF,
+            0xFFFFFFFF,
+            true,
+        );
+
+        crc.accelerator = Accelerator::Crc32;
+
+        crc
     }
 
     /// |Check|Poly|Init|Ref|XorOut|
@@ -774,7 +723,17 @@ impl CRCu32 {
         // Self::create_crc(0xEDB88320, 32, 0xFFFFFFFF, 0x00000000, true)
 
         let lookup_table = LookUpTable::Static(&REF_32_EDB88320);
-        Self::create_crc_with_exists_lookup_table(lookup_table, 32, 0xFFFFFFFF, 0x00000000, true)
+        let mut crc = Self::create_crc_with_exists_lookup_table(
+            lookup_table,
+            32,
+            0xFFFFFFFF,
+            0x00000000,
+            true,
+        );
+
+        crc.accelerator = Accelerator::Crc32;
+
+        crc
     }
 
     /// |Check|Poly|Init|Ref|XorOut|

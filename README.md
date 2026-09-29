@@ -117,15 +117,15 @@ crc64.update(b"hello");
 
 After you get a CRC value, you can still call `update` to continue computing the CRC with more input data. The `digest` method is still available as a compatibility wrapper for input types that implement `AsRef<[u8]>`.
 
-## CRC-32C Hardware Acceleration
+## CRC-32 and CRC-32C Hardware Acceleration
 
-CRC-32C has an optional SSE4.2 fast path on `x86` and `x86_64` targets.
+CRC-32C has an optional SSE4.2 fast path on `x86` and `x86_64` targets. On `aarch64` targets, both CRC-32 (`crc32`, `crc32jamcrc`, and other 32-bit reflected CRCs with the reversed polynomial `0xEDB88320`) and CRC-32C have an optional fast path that uses the CRC extension.
 
-With the default features, the `std` feature is enabled. In this mode, the crate uses runtime CPU feature detection. The same binary can run on CPUs with or without SSE4.2: it uses the hardware-accelerated path when SSE4.2 is available, and falls back to the portable implementation otherwise.
+With the default features, the `std` feature is enabled. In this mode, the crate uses runtime CPU feature detection. The same binary can run on CPUs with or without these CPU features: it uses the hardware-accelerated path when it is available, and falls back to the portable implementation otherwise.
 
-For builds that only run on CPUs known to support SSE4.2, you can enable that CPU feature at compile time, for example with `-C target-cpu=native` or `-C target-feature=+sse4.2`. This lets the crate use the SSE4.2 implementation directly for CRC-32C, without the runtime detection branch, and may also help the compiler optimize the code further.
+For builds that only run on CPUs known to support these CPU features, you can enable them at compile time, for example with `-C target-cpu=native`, `-C target-feature=+sse4.2` (for `x86` and `x86_64`), or `-C target-feature=+crc` (for `aarch64`). This lets the crate use the hardware implementation directly, without the runtime detection branch, and may also help the compiler optimize the code further. Some targets, such as `aarch64-apple-darwin`, already enable the CRC extension by default.
 
-Do not enable these compile-time options for binaries that must run on older `x86` or `x86_64` CPUs without SSE4.2 support.
+Do not enable these compile-time options for binaries that must run on older CPUs without these CPU features.
 
 ## Slicing-by-8
 
@@ -139,7 +139,7 @@ features = ["slicing-by-8"]
 
 The cost is memory. Each lookup table becomes 8 times larger (for example, 16 KiB instead of 2 KiB for CRC-64), and creating a CRC with `create_crc` takes longer because it has to build more tables. Built-in CRC functions use static tables. With the `alloc` feature, tables built by `create_crc` are stored on the heap. Without it, they are stored inside the instance, so each instance becomes much larger.
 
-When the SSE4.2 fast path of CRC-32C is available, it is still used first.
+When a hardware fast path is available, it is still used first.
 
 ## No Std and Heapless Support
 
