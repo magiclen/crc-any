@@ -1,7 +1,8 @@
 #[cfg(feature = "alloc")]
-use alloc::fmt::{self, Debug, Display, Formatter};
-#[cfg(feature = "alloc")]
 use alloc::vec::Vec;
+#[cfg(feature = "alloc")]
+use core::fmt::Debug;
+use core::fmt::{self, Display, Formatter};
 
 #[cfg(feature = "heapless")]
 use heapless::Vec as HeaplessVec;
@@ -34,7 +35,6 @@ impl Debug for CRCu16 {
     }
 }
 
-#[cfg(feature = "alloc")]
 impl Display for CRCu16 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
@@ -322,6 +322,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc10();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x199, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x199\", &crc.to_string());")]
     /// ```
     pub fn crc10() -> CRCu16 {
@@ -339,6 +340,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc10cdma2000();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x233, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x233\", &crc.to_string());")]
     /// ```
     pub fn crc10cdma2000() -> CRCu16 {
@@ -356,6 +358,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc10gsm();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x12A, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x12A\", &crc.to_string());")]
     /// ```
     pub fn crc10gsm() -> CRCu16 {
@@ -373,6 +376,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc11();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x5A3, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x5A3\", &crc.to_string());")]
     /// ```
     pub fn crc11() -> CRCu16 {
@@ -390,6 +394,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc12();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xF5B, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xF5B\", &crc.to_string());")]
     /// ```
     pub fn crc12() -> CRCu16 {
@@ -407,6 +412,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc12cdma2000();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xD4D, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xD4D\", &crc.to_string());")]
     /// ```
     pub fn crc12cdma2000() -> CRCu16 {
@@ -424,6 +430,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc12gsm();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xB34, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xB34\", &crc.to_string());")]
     /// ```
     pub fn crc12gsm() -> CRCu16 {
@@ -441,6 +448,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc13bbc();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x04FA, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x04FA\", &crc.to_string());")]
     /// ```
     pub fn crc13bbc() -> CRCu16 {
@@ -458,6 +466,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc14darc();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x082D, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x082D\", &crc.to_string());")]
     /// ```
     pub fn crc14darc() -> CRCu16 {
@@ -475,6 +484,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc14gsm();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x30AE, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x30AE\", &crc.to_string());")]
     /// ```
     pub fn crc14gsm() -> CRCu16 {
@@ -492,6 +502,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc15can();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x059E, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x059E\", &crc.to_string());")]
     /// ```
     pub fn crc15can() -> CRCu16 {
@@ -509,6 +520,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc15mpt1327();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x2566, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x2566\", &crc.to_string());")]
     /// ```
     pub fn crc15mpt1327() -> CRCu16 {
@@ -526,6 +538,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xBB3D, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xBB3D\", &crc.to_string());")]
     /// ```
     pub fn crc16() -> CRCu16 {
@@ -543,6 +556,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16ccitt_false();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x29B1, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x29B1\", &crc.to_string());")]
     /// ```
     pub fn crc16ccitt_false() -> CRCu16 {
@@ -560,6 +574,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16aug_ccitt();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xE5CC, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xE5CC\", &crc.to_string());")]
     /// ```
     pub fn crc16aug_ccitt() -> CRCu16 {
@@ -577,6 +592,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16buypass();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xFEE8, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xFEE8\", &crc.to_string());")]
     /// ```
     pub fn crc16buypass() -> CRCu16 {
@@ -594,6 +610,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16cdma2000();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x4C06, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x4C06\", &crc.to_string());")]
     /// ```
     pub fn crc16cdma2000() -> CRCu16 {
@@ -611,6 +628,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16dds_110();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x9ECF, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x9ECF\", &crc.to_string());")]
     /// ```
     pub fn crc16dds_110() -> CRCu16 {
@@ -628,6 +646,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16dect_r();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x007E, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x007E\", &crc.to_string());")]
     /// ```
     pub fn crc16dect_r() -> CRCu16 {
@@ -645,6 +664,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16dect_x();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x007F, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x007F\", &crc.to_string());")]
     /// ```
     pub fn crc16dect_x() -> CRCu16 {
@@ -662,6 +682,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16dnp();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xEA82, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xEA82\", &crc.to_string());")]
     /// ```
     pub fn crc16dnp() -> CRCu16 {
@@ -679,6 +700,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16en_13757();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xC2B7, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xC2B7\", &crc.to_string());")]
     /// ```
     pub fn crc16en_13757() -> CRCu16 {
@@ -696,6 +718,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16genibus();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xD64E, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xD64E\", &crc.to_string());")]
     /// ```
     pub fn crc16genibus() -> CRCu16 {
@@ -713,6 +736,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16maxim();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x44C2, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x44C2\", &crc.to_string());")]
     /// ```
     pub fn crc16maxim() -> CRCu16 {
@@ -730,6 +754,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16mcrf4cc();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x6F91, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x6F91\", &crc.to_string());")]
     /// ```
     pub fn crc16mcrf4cc() -> CRCu16 {
@@ -747,6 +772,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16riello();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x63D0, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x63D0\", &crc.to_string());")]
     /// ```
     pub fn crc16riello() -> CRCu16 {
@@ -764,6 +790,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16t10_dif();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xD0DB, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xD0DB\", &crc.to_string());")]
     /// ```
     pub fn crc16t10_dif() -> CRCu16 {
@@ -781,6 +808,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16teledisk();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x0FB3, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x0FB3\", &crc.to_string());")]
     /// ```
     pub fn crc16teledisk() -> CRCu16 {
@@ -798,6 +826,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16tms37157();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x26B1, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x26B1\", &crc.to_string());")]
     /// ```
     pub fn crc16tms37157() -> CRCu16 {
@@ -822,6 +851,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16usb();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xB4C8, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xB4C8\", &crc.to_string());")]
     /// ```
     pub fn crc16usb() -> CRCu16 {
@@ -839,6 +869,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc_a();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xBF05, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xBF05\", &crc.to_string());")]
     /// ```
     pub fn crc_a() -> CRCu16 {
@@ -856,6 +887,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16kermit();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x2189, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x2189\", &crc.to_string());")]
     /// ```
     pub fn crc16kermit() -> CRCu16 {
@@ -873,6 +905,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16modbus();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x4B37, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x4B37\", &crc.to_string());")]
     /// ```
     pub fn crc16modbus() -> CRCu16 {
@@ -890,6 +923,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16_x25();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x906E, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x906E\", &crc.to_string());")]
     /// ```
     pub fn crc16_x25() -> CRCu16 {
@@ -907,6 +941,7 @@ impl CRCu16 {
     /// # use crc_any::CRCu16;
     /// let mut crc = CRCu16::crc16xmodem();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x31C3, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x31C3\", &crc.to_string());")]
     /// ```
     pub fn crc16xmodem() -> CRCu16 {

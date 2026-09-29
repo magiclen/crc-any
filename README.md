@@ -104,6 +104,7 @@ For simpler usage, this crate also provides built-in functions for many common C
  * crc64iso
  * crc64we
  * crc64jones
+   * This is CRC-64/REDIS, which uses the Jones polynomial with an initial value of zero.
 
 For example:
 
@@ -137,7 +138,7 @@ version = "*"
 features = ["slicing-by-8"]
 ```
 
-The cost is memory. Each lookup table becomes 8 times larger (for example, 16 KiB instead of 2 KiB for CRC-64), and creating a CRC with `create_crc` takes longer because it has to build more tables. Built-in CRC functions use static tables. With the `alloc` feature, tables built by `create_crc` are stored on the heap. Without it, they are stored inside the instance, so each instance becomes much larger.
+The cost is memory. Each lookup table becomes 8 times larger (for example, 16 KiB instead of 2 KiB for CRC-64), and creating a CRC with `create_crc` takes longer when it has to build tables. Built-in CRC functions use static tables. Custom 32-bit reflected CRCs with the reversed polynomial `0xEDB88320` or `0x82F63B78` also reuse static tables. With the `alloc` feature, newly built tables are stored on the heap. Without it, they are stored inside the instance, so each instance becomes much larger.
 
 When a hardware fast path is available, it is still used first.
 
@@ -151,7 +152,7 @@ version = "*"
 default-features = false
 ```
 
-After disabling the default features, the `get_crc_vec_be` and `get_crc_vec_le` methods are not available. If you still need this crate to return a vector-like value without dynamic allocation, enable the `heapless` feature and use the `get_crc_heapless_vec_be` and `get_crc_heapless_vec_le` methods.
+The `Display` implementation is available without heap allocation. After disabling the default features, the `get_crc_vec_be` and `get_crc_vec_le` methods are not available. If you still need this crate to return a vector-like value without dynamic allocation, enable the `heapless` feature and use the `get_crc_heapless_vec_be` and `get_crc_heapless_vec_le` methods.
 
 ```toml
 [dependencies.crc-any]

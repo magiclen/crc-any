@@ -1,7 +1,8 @@
 #[cfg(feature = "alloc")]
-use alloc::fmt::{self, Debug, Display, Formatter};
-#[cfg(feature = "alloc")]
 use alloc::vec::Vec;
+#[cfg(feature = "alloc")]
+use core::fmt::Debug;
+use core::fmt::{self, Display, Formatter};
 
 #[cfg(feature = "heapless")]
 use heapless::Vec as HeaplessVec;
@@ -34,7 +35,6 @@ impl Debug for CRCu64 {
     }
 }
 
-#[cfg(feature = "alloc")]
 impl Display for CRCu64 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
@@ -319,6 +319,7 @@ impl CRCu64 {
     /// # use crc_any::CRCu64;
     /// let mut crc = CRCu64::crc40gsm();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xD4164FC646, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xD4164FC646\", &crc.to_string());")]
     /// ```
     pub fn crc40gsm() -> CRCu64 {
@@ -342,6 +343,7 @@ impl CRCu64 {
     /// # use crc_any::CRCu64;
     /// let mut crc = CRCu64::crc64();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x6C40DF5F0B497347, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x6C40DF5F0B497347\", &crc.to_string());")]
     /// ```
     pub fn crc64() -> CRCu64 {
@@ -365,6 +367,7 @@ impl CRCu64 {
     /// # use crc_any::CRCu64;
     /// let mut crc = CRCu64::crc64iso();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xB90956C775A41001, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xB90956C775A41001\", &crc.to_string());")]
     /// ```
     pub fn crc64iso() -> CRCu64 {
@@ -388,6 +391,7 @@ impl CRCu64 {
     /// # use crc_any::CRCu64;
     /// let mut crc = CRCu64::crc64we();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x62EC59E3F1A4F00A, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x62EC59E3F1A4F00A\", &crc.to_string());")]
     /// ```
     pub fn crc64we() -> CRCu64 {
@@ -407,10 +411,13 @@ impl CRCu64 {
     /// |---|---|---|---|---|
     /// |0xE9C6D914C4B8D9CA|0xAD93D23594C935A9 (rev: 0x95AC9329AC4BC9B5)|0x0000000000000000|true|0x0000000000000000|
     ///
+    /// This is CRC-64/REDIS, which uses the Jones polynomial with an initial value of zero.
+    ///
     /// ```
     /// # use crc_any::CRCu64;
     /// let mut crc = CRCu64::crc64jones();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xE9C6D914C4B8D9CA, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xE9C6D914C4B8D9CA\", &crc.to_string());")]
     /// ```
     pub fn crc64jones() -> CRCu64 {

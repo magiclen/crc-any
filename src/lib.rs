@@ -13,6 +13,7 @@ use crc_any::CRC;
 let mut crc24 = CRC::create_crc(0x0000000000864CFB, 24, 0x0000000000B704CE, 0x0000000000000000, false);
 
 crc24.update(b"hello");
+assert_eq!(0x47F58A, crc24.get_crc());
 
 # #[cfg(feature = "alloc")]
 # {
@@ -108,6 +109,7 @@ For simpler usage, this crate also provides built-in functions for many common C
  * crc64iso
  * crc64we
  * crc64jones
+   * This is CRC-64/REDIS, which uses the Jones polynomial with an initial value of zero.
 
 For example:
 
@@ -117,6 +119,7 @@ use crc_any::CRC;
 let mut crc64 = CRC::crc64();
 
 crc64.update(b"hello");
+assert_eq!(0x40544A306137B6EC, crc64.get_crc());
 
 # #[cfg(feature = "alloc")]
 # {
@@ -150,7 +153,12 @@ version = "*"
 features = ["slicing-by-8"]
 ```
 
-The cost is memory. Each lookup table becomes 8 times larger (for example, 16 KiB instead of 2 KiB for CRC-64), and creating a CRC with `create_crc` takes longer because it has to build more tables. Built-in CRC functions use static tables. With the `alloc` feature, tables built by `create_crc` are stored on the heap. Without it, they are stored inside the instance, so each instance becomes much larger.
+The cost is memory.
+Each lookup table becomes 8 times larger (for example, 16 KiB instead of 2 KiB for CRC-64), and creating a CRC with `create_crc` takes longer when it has to build tables.
+Built-in CRC functions use static tables.
+Custom 32-bit reflected CRCs with the reversed polynomial `0xEDB88320` or `0x82F63B78` also reuse static tables.
+With the `alloc` feature, newly built tables are stored on the heap.
+Without it, they are stored inside the instance, so each instance becomes much larger.
 
 When a hardware fast path is available, it is still used first.
 
@@ -164,7 +172,9 @@ version = "*"
 default-features = false
 ```
 
-After disabling the default features, the `get_crc_vec_be` and `get_crc_vec_le` methods are not available. If you still need this crate to return a vector-like value without dynamic allocation, enable the `heapless` feature and use the `get_crc_heapless_vec_be` and `get_crc_heapless_vec_le` methods.
+The `Display` implementation is available without heap allocation.
+After disabling the default features, the `get_crc_vec_be` and `get_crc_vec_le` methods are not available.
+If you still need this crate to return a vector-like value without dynamic allocation, enable the `heapless` feature and use the `get_crc_heapless_vec_be` and `get_crc_heapless_vec_le` methods.
 
 ```toml
 [dependencies.crc-any]
@@ -181,9 +191,8 @@ features = ["heapless"]
 extern crate alloc;
 
 #[cfg(feature = "alloc")]
-use alloc::fmt::{self, Display, Formatter};
-#[cfg(feature = "alloc")]
 use alloc::vec::Vec;
+use core::fmt::{self, Display, Formatter};
 
 #[cfg(feature = "heapless")]
 use heapless::Vec as HeaplessVec;
@@ -212,7 +221,6 @@ pub enum CRC {
     CRCu64(CRCu64),
 }
 
-#[cfg(feature = "alloc")]
 impl Display for CRC {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
@@ -411,6 +419,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc3gsm();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x4, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x4\", &crc.to_string());")]
     /// ```
     pub fn crc3gsm() -> CRC {
@@ -427,6 +436,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc4itu();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x7, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x7\", &crc.to_string());")]
     /// ```
     pub fn crc4itu() -> CRC {
@@ -441,6 +451,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc4interlaken();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xB, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xB\", &crc.to_string());")]
     /// ```
     pub fn crc4interlaken() -> CRC {
@@ -457,6 +468,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc5epc();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x00, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x00\", &crc.to_string());")]
     /// ```
     pub fn crc5epc() -> CRC {
@@ -471,6 +483,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc5itu();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x07, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x07\", &crc.to_string());")]
     /// ```
     pub fn crc5itu() -> CRC {
@@ -485,6 +498,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc5usb();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x19, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x19\", &crc.to_string());")]
     /// ```
     pub fn crc5usb() -> CRC {
@@ -501,6 +515,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc6cdma2000_a();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x0D, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x0D\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -516,6 +531,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc6cdma2000_b();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x3B, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x3B\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -531,6 +547,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc6darc();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x26, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x26\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -546,6 +563,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc6gsm();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x13, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x13\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -561,6 +579,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc6itu();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x06, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x06\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -578,6 +597,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc7();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x75, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x75\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -593,6 +613,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc7umts();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x61, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x61\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -610,6 +631,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xF4, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xF4\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -625,6 +647,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8cdma2000();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xDA, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xDA\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -640,6 +663,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8darc();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x15, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x15\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -655,6 +679,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8dvb_s2();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xBC, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xBC\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -670,6 +695,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8ebu();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x97, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x97\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -685,6 +711,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8icode();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x7E, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x7E\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -700,6 +727,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8itu();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xA1, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xA1\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -715,6 +743,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8maxim();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xA1, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xA1\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -730,6 +759,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8rohc();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xD0, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xD0\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -745,6 +775,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc8wcdma();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x25, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x25\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -762,6 +793,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc10();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x199, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x199\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -777,6 +809,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc10cdma2000();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x233, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x233\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -792,6 +825,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc10gsm();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x12A, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x12A\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -809,6 +843,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc11();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x5A3, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x5A3\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -826,6 +861,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc12();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xF5B, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xF5B\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -841,6 +877,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc12cdma2000();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xD4D, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xD4D\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -856,6 +893,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc12gsm();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xB34, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xB34\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -873,6 +911,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc13bbc();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x04FA, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x04FA\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -890,6 +929,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc14darc();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x082D, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x082D\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -905,6 +945,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc14gsm();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x30AE, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x30AE\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -922,6 +963,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc15can();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x059E, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x059E\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -937,6 +979,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc15mpt1327();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x2566, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x2566\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -954,6 +997,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xBB3D, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xBB3D\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -969,6 +1013,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16ccitt_false();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x29B1, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x29B1\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -984,6 +1029,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16aug_ccitt();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xE5CC, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xE5CC\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -999,6 +1045,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16buypass();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xFEE8, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xFEE8\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1014,6 +1061,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16cdma2000();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x4C06, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x4C06\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1029,6 +1077,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16dds_110();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x9ECF, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x9ECF\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1044,6 +1093,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16dect_r();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x007E, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x007E\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1059,6 +1109,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16dect_x();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x007F, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x007F\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1074,6 +1125,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16dnp();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xEA82, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xEA82\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1089,6 +1141,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16en_13757();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xC2B7, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xC2B7\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1104,6 +1157,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16genibus();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xD64E, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xD64E\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1119,6 +1173,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16maxim();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x44C2, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x44C2\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1134,6 +1189,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16mcrf4cc();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x6F91, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x6F91\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1149,6 +1205,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16riello();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x63D0, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x63D0\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1164,6 +1221,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16t10_dif();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xD0DB, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xD0DB\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1179,6 +1237,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16teledisk();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x0FB3, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x0FB3\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1194,6 +1253,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16tms37157();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x26B1, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x26B1\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1216,6 +1276,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16usb();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xB4C8, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xB4C8\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1231,6 +1292,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc_a();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xBF05, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xBF05\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1246,6 +1308,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16kermit();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x2189, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x2189\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1261,6 +1324,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16modbus();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x4B37, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x4B37\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1276,6 +1340,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16_x25();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x906E, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x906E\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1291,6 +1356,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc16xmodem();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x31C3, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x31C3\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1308,6 +1374,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc17can();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x04F03, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x04F03\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1325,6 +1392,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc21can();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x0ED841, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x0ED841\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1342,6 +1410,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc24();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x21CF02, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x21CF02\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1357,6 +1426,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc24ble();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xC25A56, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xC25A56\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1372,6 +1442,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc24flexray_a();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x7979BD, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x7979BD\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1387,6 +1458,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc24flexray_b();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x1F23B8, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x1F23B8\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1402,6 +1474,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc24lte_a();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xCDE703, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xCDE703\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1417,6 +1490,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc24lte_b();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x23EF52, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x23EF52\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1432,6 +1506,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc24os9();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x200FA5, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x200FA5\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1449,6 +1524,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc30cdma();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x04C34ABF, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x04C34ABF\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1466,6 +1542,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xCBF43926, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xCBF43926\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1483,6 +1560,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32mhash();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x181989FC, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x181989FC\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1498,6 +1576,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32bzip2();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xFC891918, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xFC891918\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1513,6 +1592,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32c();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xE3069283, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xE3069283\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1528,6 +1608,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32d();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x87315576, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x87315576\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1543,6 +1624,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32mpeg2();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x0376E6E7, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x0376E6E7\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1558,6 +1640,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32posix();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x765E7680, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x765E7680\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1573,6 +1656,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32q();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x3010BF7F, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x3010BF7F\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1588,6 +1672,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32jamcrc();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x340BC6D9, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x340BC6D9\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1603,6 +1688,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc32xfer();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xBD0BE338, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xBD0BE338\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1620,6 +1706,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc40gsm();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xD4164FC646, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xD4164FC646\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1637,6 +1724,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc64();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x6C40DF5F0B497347, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x6C40DF5F0B497347\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1652,6 +1740,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc64iso();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xB90956C775A41001, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xB90956C775A41001\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1667,6 +1756,7 @@ impl CRC {
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc64we();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0x62EC59E3F1A4F00A, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x62EC59E3F1A4F00A\", &crc.to_string());")]
     /// ```
     #[inline]
@@ -1678,10 +1768,13 @@ impl CRC {
     /// |---|---|---|---|---|
     /// |0xE9C6D914C4B8D9CA|0xAD93D23594C935A9 (rev: 0x95AC9329AC4BC9B5)|0x0000000000000000|true|0x0000000000000000|
     ///
+    /// This is CRC-64/REDIS, which uses the Jones polynomial with an initial value of zero.
+    ///
     /// ```
     /// # use crc_any::CRC;
     /// let mut crc = CRC::crc64jones();
     /// crc.digest(b"123456789");
+    /// assert_eq!(0xE9C6D914C4B8D9CA, crc.get_crc());
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xE9C6D914C4B8D9CA\", &crc.to_string());")]
     /// ```
     #[inline]

@@ -43,6 +43,8 @@ jobs:
           -  --no-default-features --features heapless
           -  --features slicing-by-8
           -  --no-default-features --features slicing-by-8
+          -  --no-default-features --features alloc
+          -  --no-default-features --features alloc --features slicing-by-8
     name: Test ${{ matrix.toolchain }} on ${{ matrix.os }} (${{ matrix.features }})
     runs-on: ${{ matrix.os }}
     steps:
@@ -70,6 +72,8 @@ jobs:
           -  --no-default-features --features heapless
           -  --features slicing-by-8
           -  --no-default-features --features slicing-by-8
+          -  --no-default-features --features alloc
+          -  --no-default-features --features alloc --features slicing-by-8
     name: Test ${{ matrix.toolchain }} on ${{ matrix.os }} (${{ matrix.features }})
     runs-on: ${{ matrix.os }}
     steps:
