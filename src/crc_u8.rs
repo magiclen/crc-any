@@ -97,7 +97,9 @@ impl CRCu8 {
         let high_bit = 1 << (bits - 1);
         let mask = ((high_bit - 1) << 1) | 1;
 
-        let sum = if reflect { Self::reflect_function(high_bit, initial) } else { initial };
+        // The bit-by-bit path works in the non-reflected domain, so only the table path needs a reflected initial value.
+        let sum =
+            if by_table && reflect { Self::reflect_function(high_bit, initial) } else { initial };
 
         if !by_table && reflect {
             poly = Self::reflect_function(high_bit, poly);
@@ -211,7 +213,7 @@ impl CRCu8 {
     /// Reset the sum.
     #[inline]
     pub fn reset(&mut self) {
-        self.sum = if self.reflect {
+        self.sum = if self.by_table && self.reflect {
             Self::reflect_function(self.high_bit, self.initial)
         } else {
             self.initial

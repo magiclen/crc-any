@@ -80,3 +80,18 @@ fn enum_reset_matches_fresh_for_reflected_crc() {
     assert_eq!(0x63D0, expected);
     assert_eq!(expected, reused.get_crc());
 }
+
+#[test]
+fn reset_matches_fresh_for_reflected_bitwise_crc() {
+    let mut fresh = CRCu16::create_crc(0x0F01, 12, 0x0123, 0x0000, true);
+    fresh.digest(CHECK_INPUT);
+    let expected = fresh.get_crc();
+
+    let mut reused = CRCu16::create_crc(0x0F01, 12, 0x0123, 0x0000, true);
+    reused.digest(CHECK_INPUT);
+    reused.reset();
+    reused.digest(CHECK_INPUT);
+
+    assert_eq!(0x0A1A, expected);
+    assert_eq!(expected, reused.get_crc());
+}
