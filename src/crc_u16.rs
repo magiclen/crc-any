@@ -21,7 +21,6 @@ pub struct CRCu16 {
     initial:         u16,
     final_xor:       u16,
     reflect:         bool,
-    reorder:         bool,
 }
 
 #[cfg(feature = "alloc")]
@@ -29,9 +28,9 @@ impl Debug for CRCu16 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
         if self.by_table {
-            debug_helper::impl_debug_for_struct!(CRCu16, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:04X}", self.sum), .bits, (.initial, "0x{:04X}", self.initial), (.final_xor, "0x{:04X}", self.final_xor), .reflect, .reorder);
+            debug_helper::impl_debug_for_struct!(CRCu16, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:04X}", self.sum), .bits, (.initial, "0x{:04X}", self.initial), (.final_xor, "0x{:04X}", self.final_xor), .reflect);
         } else {
-            debug_helper::impl_debug_for_struct!(CRCu16, f, self, (.poly, "0x{:04X}", self.poly), (.sum, "0x{:04X}", self.sum), .bits, (.initial, "0x{:04X}", self.initial), (.final_xor, "0x{:04X}", self.final_xor), .reflect, .reorder);
+            debug_helper::impl_debug_for_struct!(CRCu16, f, self, (.poly, "0x{:04X}", self.poly), (.sum, "0x{:04X}", self.sum), .bits, (.initial, "0x{:04X}", self.initial), (.final_xor, "0x{:04X}", self.final_xor), .reflect);
         }
     }
 }
@@ -123,7 +122,6 @@ impl CRCu16 {
             initial,
             final_xor,
             reflect,
-            reorder: false,
         }
     }
 
@@ -223,26 +221,10 @@ impl CRCu16 {
 
     /// Get the current CRC value (it always returns a `u16` value). You can continue calling `update` or `digest` even after getting a CRC value.
     pub fn get_crc(&self) -> u16 {
-        let sum = if self.by_table || !self.reflect {
+        if self.by_table || !self.reflect {
             (self.sum ^ self.final_xor) & self.mask
         } else {
             (self.reflect_method(self.sum) ^ self.final_xor) & self.mask
-        };
-
-        if self.reorder {
-            let mut new_sum = 0;
-
-            let e = u16::from(self.bits).div_ceil(8);
-
-            let e_dec = e - 1;
-
-            for i in 0..e {
-                new_sum |= ((sum >> ((e_dec - i) << 3)) & 0xFF) << (i << 3);
-            }
-
-            new_sum
-        } else {
-            sum
         }
     }
 
@@ -786,7 +768,7 @@ impl CRCu16 {
     pub fn crc16teledisk() -> CRCu16 {
         //         Self::create_crc(0xA097, 16, 0x0000, 0x0000, false)
 
-        let lookup_table = LookUpTable::Static(&REF_16_A097);
+        let lookup_table = LookUpTable::Static(&NO_REF_16_A097);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0x0000, 0x0000, false)
     }
 

@@ -21,7 +21,6 @@ pub struct CRCu64 {
     initial:         u64,
     final_xor:       u64,
     reflect:         bool,
-    reorder:         bool,
 }
 
 #[cfg(feature = "alloc")]
@@ -29,9 +28,9 @@ impl Debug for CRCu64 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
         if self.by_table {
-            debug_helper::impl_debug_for_struct!(CRCu64, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:016X}", self.sum), .bits, (.initial, "0x{:016X}", self.initial), (.final_xor, "0x{:016X}", self.final_xor), .reflect, .reorder);
+            debug_helper::impl_debug_for_struct!(CRCu64, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:016X}", self.sum), .bits, (.initial, "0x{:016X}", self.initial), (.final_xor, "0x{:016X}", self.final_xor), .reflect);
         } else {
-            debug_helper::impl_debug_for_struct!(CRCu64, f, self, (.poly, "0x{:016X}", self.poly), (.sum, "0x{:016X}", self.sum), .bits, (.initial, "0x{:016X}", self.initial), (.final_xor, "0x{:016X}", self.final_xor), .reflect, .reorder);
+            debug_helper::impl_debug_for_struct!(CRCu64, f, self, (.poly, "0x{:016X}", self.poly), (.sum, "0x{:016X}", self.sum), .bits, (.initial, "0x{:016X}", self.initial), (.final_xor, "0x{:016X}", self.final_xor), .reflect);
         }
     }
 }
@@ -123,7 +122,6 @@ impl CRCu64 {
             initial,
             final_xor,
             reflect,
-            reorder: false,
         }
     }
 
@@ -223,26 +221,10 @@ impl CRCu64 {
 
     /// Get the current CRC value (it always returns a `u64` value). You can continue calling `update` or `digest` even after getting a CRC value.
     pub fn get_crc(&self) -> u64 {
-        let sum = if self.by_table || !self.reflect {
+        if self.by_table || !self.reflect {
             (self.sum ^ self.final_xor) & self.mask
         } else {
             (self.reflect_method(self.sum) ^ self.final_xor) & self.mask
-        };
-
-        if self.reorder {
-            let mut new_sum = 0;
-
-            let e = u64::from(self.bits).div_ceil(8);
-
-            let e_dec = e - 1;
-
-            for i in 0..e {
-                new_sum |= ((sum >> ((e_dec - i) * 8)) & 0xFF) << (i * 8);
-            }
-
-            new_sum
-        } else {
-            sum
         }
     }
 

@@ -345,54 +345,40 @@ impl CRC {
 
 #[cfg(feature = "heapless")]
 impl CRC {
-    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `update` or `digest` even after getting a CRC value.
-    pub fn get_crc_heapless_vec_le(&self) -> HeaplessVec<u8, 8, u8> {
-        let mut vec = HeaplessVec::new();
-
-        let bits = match self {
+    #[inline]
+    fn bits(&self) -> u8 {
+        match self {
             CRC::CRCu8(crc) => crc.bits,
             CRC::CRCu16(crc) => crc.bits,
             CRC::CRCu32(crc) => crc.bits,
             CRC::CRCu64(crc) => crc.bits,
-        };
+        }
+    }
 
-        let e = usize::from(bits).div_ceil(8);
-
-        let e_dec = e - 1;
-
-        let o = e_dec * 8;
-
+    /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `update` or `digest` even after getting a CRC value.
+    #[inline]
+    pub fn get_crc_heapless_vec_le(&self) -> HeaplessVec<u8, 8, u8> {
         let crc = self.get_crc();
 
-        for i in 0..e {
-            vec.push((crc << ((e_dec - i) * 8) >> o) as u8).unwrap();
-        }
+        let e = usize::from(self.bits()).div_ceil(8);
+
+        let mut vec = HeaplessVec::new();
+
+        vec.extend_from_slice(&crc.to_le_bytes()[..e]).unwrap();
 
         vec
     }
 
     /// Get the current CRC value (it always returns a vec instance with a length corresponding to the CRC bits). You can continue calling `update` or `digest` even after getting a CRC value.
+    #[inline]
     pub fn get_crc_heapless_vec_be(&self) -> HeaplessVec<u8, 8, u8> {
-        let mut vec = HeaplessVec::new();
-
-        let bits = match self {
-            CRC::CRCu8(crc) => crc.bits,
-            CRC::CRCu16(crc) => crc.bits,
-            CRC::CRCu32(crc) => crc.bits,
-            CRC::CRCu64(crc) => crc.bits,
-        };
-
-        let e = usize::from(bits).div_ceil(8);
-
-        let e_dec = e - 1;
-
-        let o = e_dec * 8;
-
         let crc = self.get_crc();
 
-        for i in 0..e {
-            vec.push((crc << (i * 8) >> o) as u8).unwrap();
-        }
+        let e = usize::from(self.bits()).div_ceil(8);
+
+        let mut vec = HeaplessVec::new();
+
+        vec.extend_from_slice(&crc.to_be_bytes()[(8 - e)..]).unwrap();
 
         vec
     }

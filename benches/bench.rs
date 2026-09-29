@@ -117,7 +117,7 @@ fn crc64_construct_wellknown(bencher: &mut Bencher) {
 }
 
 fn crc64_update_megabytes_wellknown(bencher: &mut Bencher) {
-    let mut crc = CRC::crc64();
+    let mut crc = crc_any::CRCu64::crc64iso();
     let bytes = megabyte_buffer();
 
     bencher.iter(|| {
