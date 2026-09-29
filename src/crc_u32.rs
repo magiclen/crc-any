@@ -321,26 +321,34 @@ impl CRCu32 {
     }
 }
 
+#[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_feature = "sse4.2"))]
 #[inline]
 fn crc32c_hardware_update(sum: u32, data: &[u8]) -> Option<u32> {
-    #[cfg(all(any(target_arch = "x86", target_arch = "x86_64"), target_feature = "sse4.2"))]
-    {
-        return Some(unsafe { crc32c_sse42_update(sum, data) });
+    // SAFETY: SSE4.2 is enabled at compile time.
+    Some(unsafe { crc32c_sse42_update(sum, data) })
+}
+
+#[cfg(all(
+    feature = "std",
+    any(target_arch = "x86", target_arch = "x86_64"),
+    not(target_feature = "sse4.2")
+))]
+#[inline]
+fn crc32c_hardware_update(sum: u32, data: &[u8]) -> Option<u32> {
+    if std::is_x86_feature_detected!("sse4.2") {
+        // SAFETY: SSE4.2 is detected at runtime.
+        Some(unsafe { crc32c_sse42_update(sum, data) })
+    } else {
+        None
     }
+}
 
-    #[cfg(all(
-        feature = "std",
-        any(target_arch = "x86", target_arch = "x86_64"),
-        not(target_feature = "sse4.2")
-    ))]
-    {
-        if std::is_x86_feature_detected!("sse4.2") {
-            return Some(unsafe { crc32c_sse42_update(sum, data) });
-        }
-    }
-
-    let _ = (sum, data);
-
+#[cfg(not(all(
+    any(target_arch = "x86", target_arch = "x86_64"),
+    any(feature = "std", target_feature = "sse4.2")
+)))]
+#[inline]
+fn crc32c_hardware_update(_sum: u32, _data: &[u8]) -> Option<u32> {
     None
 }
 
