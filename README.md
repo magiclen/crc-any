@@ -127,6 +127,20 @@ For builds that only run on CPUs known to support SSE4.2, you can enable that CP
 
 Do not enable these compile-time options for binaries that must run on older `x86` or `x86_64` CPUs without SSE4.2 support.
 
+## Slicing-by-8
+
+Enable the `slicing-by-8` feature to use eight lookup tables and process 8 bytes in each step. It is usually around 3 times faster than the default byte-by-byte lookup.
+
+```toml
+[dependencies.crc-any]
+version = "*"
+features = ["slicing-by-8"]
+```
+
+The cost is memory. Each lookup table becomes 8 times larger (for example, 16 KiB instead of 2 KiB for CRC-64), and creating a CRC with `create_crc` takes longer because it has to build more tables. Built-in CRC functions use static tables. With the `alloc` feature, tables built by `create_crc` are stored on the heap. Without it, they are stored inside the instance, so each instance becomes much larger.
+
+When the SSE4.2 fast path of CRC-32C is available, it is still used first.
+
 ## No Std and Heapless Support
 
 To make sure this crate does not use heap allocation, disable the default features. This also disables the `std` runtime CPU feature detection path.

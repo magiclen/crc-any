@@ -1,7 +1,12 @@
 #[cfg(feature = "alloc")]
 use alloc::fmt::{self, Debug, Display, Formatter};
 
-use crate::{constants::crc_u8::*, lookup_table::LookUpTable};
+#[cfg(feature = "slicing-by-8")]
+use crate::lookup_table::slice_by_8;
+use crate::{
+    constants::crc_u8::*,
+    lookup_table::{LookUpTable, SLICES, Tables},
+};
 
 #[allow(clippy::upper_case_acronyms)]
 /// This struct can help you compute a CRC-8 (or CRC-x where **x** is equal or less than `8`) value.
@@ -20,7 +25,7 @@ pub struct CRCu8 {
 impl Debug for CRCu8 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-        debug_helper::impl_debug_for_struct!(CRCu8, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:02X}", self.sum), .bits, (.initial, "0x{:02X}", self.initial), (.final_xor, "0x{:02X}", self.final_xor), .reflect);
+        debug_helper::impl_debug_for_struct!(CRCu8, f, self, let .lookup_table = self.lookup_table[0].as_ref(), (.sum, "0x{:02X}", self.sum), .bits, (.initial, "0x{:02X}", self.initial), (.final_xor, "0x{:02X}", self.final_xor), .reflect);
     }
 }
 
@@ -40,9 +45,9 @@ impl CRCu8 {
         debug_assert!(bits <= 8 && bits > 0);
 
         let lookup_table = if reflect {
-            LookUpTable::Dynamic(Self::crc_reflect_table(poly))
+            LookUpTable::dynamic(Self::crc_reflect_table(poly))
         } else {
-            LookUpTable::Dynamic(Self::crc_table(poly, bits))
+            LookUpTable::dynamic(Self::crc_table(poly, bits))
         };
 
         Self::create_crc_with_exists_lookup_table(lookup_table, bits, initial, final_xor, reflect)
@@ -81,9 +86,25 @@ impl CRCu8 {
     /// Update the current CRC state with bytes.
     #[inline]
     pub fn update(&mut self, data: &[u8]) {
-        let table = &*self.lookup_table;
+        let tables = &*self.lookup_table;
 
         let mut sum = self.sum;
+
+        #[cfg(feature = "slicing-by-8")]
+        let data = {
+            let mut chunks = data.chunks_exact(8);
+
+            for chunk in &mut chunks {
+                sum = slice_by_8(
+                    tables,
+                    u64::from_le_bytes(chunk.try_into().unwrap()) ^ u64::from(sum),
+                );
+            }
+
+            chunks.remainder()
+        };
+
+        let table = &tables[0];
 
         // An 8-bit register is updated in the same way whether it is reflected or not.
         let mut chunks = data.chunks_exact(8);
@@ -134,9 +155,9 @@ impl CRCu8 {
         (sum ^ self.final_xor) & self.mask
     }
 
-    /// Build the lookup table of a reflected CRC. `poly_rev` is the reversed polynomial.
-    pub(crate) const fn crc_reflect_table(poly_rev: u8) -> [u8; 256] {
-        let mut lookup_table = [0; 256];
+    /// Build the lookup tables of a reflected CRC. `poly_rev` is the reversed polynomial.
+    pub(crate) const fn crc_reflect_table(poly_rev: u8) -> Tables<u8> {
+        let mut tables = [[0; 256]; SLICES];
 
         let mut i = 0;
 
@@ -151,19 +172,36 @@ impl CRCu8 {
                 j += 1;
             }
 
-            lookup_table[i] = v;
+            tables[0][i] = v;
 
             i += 1;
         }
 
-        lookup_table
+        // Each extra table handles one more byte that follows the looked-up byte.
+        let mut k = 1;
+
+        while k < SLICES {
+            let mut i = 0;
+
+            while i < 256 {
+                let v = tables[k - 1][i];
+
+                tables[k][i] = tables[0][v as usize];
+
+                i += 1;
+            }
+
+            k += 1;
+        }
+
+        tables
     }
 
-    /// Build the lookup table of a non-reflected CRC. The polynomial is left-aligned to 8 bits first.
-    pub(crate) const fn crc_table(poly: u8, bits: u8) -> [u8; 256] {
+    /// Build the lookup tables of a non-reflected CRC. The polynomial is left-aligned to 8 bits first.
+    pub(crate) const fn crc_table(poly: u8, bits: u8) -> Tables<u8> {
         let poly = poly << (u8::BITS - bits as u32);
 
-        let mut lookup_table = [0; 256];
+        let mut tables = [[0; 256]; SLICES];
 
         let mut i = 0;
 
@@ -178,12 +216,29 @@ impl CRCu8 {
                 j += 1;
             }
 
-            lookup_table[i] = v;
+            tables[0][i] = v;
 
             i += 1;
         }
 
-        lookup_table
+        // Each extra table handles one more byte that follows the looked-up byte.
+        let mut k = 1;
+
+        while k < SLICES {
+            let mut i = 0;
+
+            while i < 256 {
+                let v = tables[k - 1][i];
+
+                tables[k][i] = tables[0][v as usize];
+
+                i += 1;
+            }
+
+            k += 1;
+        }
+
+        tables
     }
 }
 
@@ -615,11 +670,11 @@ mod tests {
 
         let mut s = String::new();
 
-        for n in crc.lookup_table.iter().take(255) {
+        for n in crc.lookup_table[0].iter().take(255) {
             s.write_fmt(format_args!("{}u8, ", n)).unwrap();
         }
 
-        s.write_fmt(format_args!("{}u8", crc.lookup_table[255])).unwrap();
+        s.write_fmt(format_args!("{}u8", crc.lookup_table[0][255])).unwrap();
 
         println!("let lookup_table = [{}];", s);
     }

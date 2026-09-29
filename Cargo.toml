@@ -30,6 +30,7 @@ default = ["std"]
 alloc = ["dep:debug-helper"]
 std = ["alloc"]
 development = ["std"]
+slicing-by-8 = []
 
 [[bench]]
 name = "bench"

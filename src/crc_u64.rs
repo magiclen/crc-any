@@ -6,7 +6,12 @@ use alloc::vec::Vec;
 #[cfg(feature = "heapless")]
 use heapless::Vec as HeaplessVec;
 
-use crate::{constants::crc_u64::*, lookup_table::LookUpTable};
+#[cfg(feature = "slicing-by-8")]
+use crate::lookup_table::slice_by_8;
+use crate::{
+    constants::crc_u64::*,
+    lookup_table::{LookUpTable, SLICES, Tables},
+};
 
 #[allow(clippy::upper_case_acronyms)]
 /// This struct can help you compute a CRC-64 (or CRC-x where **x** is equal or less than `64`) value.
@@ -25,7 +30,7 @@ pub struct CRCu64 {
 impl Debug for CRCu64 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-        debug_helper::impl_debug_for_struct!(CRCu64, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:016X}", self.sum), .bits, (.initial, "0x{:016X}", self.initial), (.final_xor, "0x{:016X}", self.final_xor), .reflect);
+        debug_helper::impl_debug_for_struct!(CRCu64, f, self, let .lookup_table = self.lookup_table[0].as_ref(), (.sum, "0x{:016X}", self.sum), .bits, (.initial, "0x{:016X}", self.initial), (.final_xor, "0x{:016X}", self.final_xor), .reflect);
     }
 }
 
@@ -45,9 +50,9 @@ impl CRCu64 {
         debug_assert!(bits <= 64 && bits > 0);
 
         let lookup_table = if reflect {
-            LookUpTable::Dynamic(Self::crc_reflect_table(poly))
+            LookUpTable::dynamic(Self::crc_reflect_table(poly))
         } else {
-            LookUpTable::Dynamic(Self::crc_table(poly, bits))
+            LookUpTable::dynamic(Self::crc_table(poly, bits))
         };
 
         Self::create_crc_with_exists_lookup_table(lookup_table, bits, initial, final_xor, reflect)
@@ -86,9 +91,25 @@ impl CRCu64 {
     /// Update the current CRC state with bytes.
     #[inline]
     pub fn update(&mut self, data: &[u8]) {
-        let table = &*self.lookup_table;
+        let tables = &*self.lookup_table;
 
         let mut sum = self.sum;
+
+        #[cfg(feature = "slicing-by-8")]
+        let data = {
+            let mut chunks = data.chunks_exact(8);
+
+            for chunk in &mut chunks {
+                // The first input byte meets the lowest byte of a reflected register, or the highest byte of a non-reflected one.
+                let register = if self.reflect { sum } else { sum.swap_bytes() };
+
+                sum = slice_by_8(tables, u64::from_le_bytes(chunk.try_into().unwrap()) ^ register);
+            }
+
+            chunks.remainder()
+        };
+
+        let table = &tables[0];
 
         // Mix the rest of the register with the next input byte before the table lookup finishes, which shortens the dependency chain of each byte.
         if let Some((&first, rest)) = data.split_first() {
@@ -148,9 +169,9 @@ impl CRCu64 {
         (sum ^ self.final_xor) & self.mask
     }
 
-    /// Build the lookup table of a reflected CRC. `poly_rev` is the reversed polynomial.
-    pub(crate) const fn crc_reflect_table(poly_rev: u64) -> [u64; 256] {
-        let mut lookup_table = [0; 256];
+    /// Build the lookup tables of a reflected CRC. `poly_rev` is the reversed polynomial.
+    pub(crate) const fn crc_reflect_table(poly_rev: u64) -> Tables<u64> {
+        let mut tables = [[0; 256]; SLICES];
 
         let mut i = 0;
 
@@ -165,19 +186,36 @@ impl CRCu64 {
                 j += 1;
             }
 
-            lookup_table[i] = v;
+            tables[0][i] = v;
 
             i += 1;
         }
 
-        lookup_table
+        // Each extra table handles one more byte that follows the looked-up byte.
+        let mut k = 1;
+
+        while k < SLICES {
+            let mut i = 0;
+
+            while i < 256 {
+                let v = tables[k - 1][i];
+
+                tables[k][i] = (v >> 8) ^ tables[0][(v & 0xFF) as usize];
+
+                i += 1;
+            }
+
+            k += 1;
+        }
+
+        tables
     }
 
-    /// Build the lookup table of a non-reflected CRC. The polynomial is left-aligned to 64 bits first.
-    pub(crate) const fn crc_table(poly: u64, bits: u8) -> [u64; 256] {
+    /// Build the lookup tables of a non-reflected CRC. The polynomial is left-aligned to 64 bits first.
+    pub(crate) const fn crc_table(poly: u64, bits: u8) -> Tables<u64> {
         let poly = poly << (u64::BITS - bits as u32);
 
-        let mut lookup_table = [0; 256];
+        let mut tables = [[0; 256]; SLICES];
 
         let mut i = 0;
 
@@ -192,12 +230,29 @@ impl CRCu64 {
                 j += 1;
             }
 
-            lookup_table[i] = v;
+            tables[0][i] = v;
 
             i += 1;
         }
 
-        lookup_table
+        // Each extra table handles one more byte that follows the looked-up byte.
+        let mut k = 1;
+
+        while k < SLICES {
+            let mut i = 0;
+
+            while i < 256 {
+                let v = tables[k - 1][i];
+
+                tables[k][i] = (v << 8) ^ tables[0][(v >> 56) as usize];
+
+                i += 1;
+            }
+
+            k += 1;
+        }
+
+        tables
     }
 }
 
@@ -384,11 +439,11 @@ mod tests {
 
         let mut s = String::new();
 
-        for n in crc.lookup_table.iter().take(255) {
+        for n in crc.lookup_table[0].iter().take(255) {
             s.write_fmt(format_args!("{}u64, ", n)).unwrap();
         }
 
-        s.write_fmt(format_args!("{}u64", crc.lookup_table[255])).unwrap();
+        s.write_fmt(format_args!("{}u64", crc.lookup_table[0][255])).unwrap();
 
         println!("let lookup_table = [{}];", s);
     }
