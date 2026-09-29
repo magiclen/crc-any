@@ -12,12 +12,9 @@ use crate::{constants::crc_u16::*, lookup_table::LookUpTable};
 /// This struct can help you compute a CRC-16 (or CRC-x where **x** is equal or less than `16`) value.
 #[derive(Clone)]
 pub struct CRCu16 {
-    by_table:        bool,
-    poly:            u16,
     lookup_table:    LookUpTable<u16>,
     sum:             u16,
     pub(crate) bits: u8,
-    high_bit:        u16,
     mask:            u16,
     initial:         u16,
     final_xor:       u16,
@@ -28,11 +25,7 @@ pub struct CRCu16 {
 impl Debug for CRCu16 {
     #[inline]
     fn fmt(&self, f: &mut Formatter) -> Result<(), fmt::Error> {
-        if self.by_table {
-            debug_helper::impl_debug_for_struct!(CRCu16, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:04X}", self.sum), .bits, (.initial, "0x{:04X}", self.initial), (.final_xor, "0x{:04X}", self.final_xor), .reflect);
-        } else {
-            debug_helper::impl_debug_for_struct!(CRCu16, f, self, (.poly, "0x{:04X}", self.poly), (.sum, "0x{:04X}", self.sum), .bits, (.initial, "0x{:04X}", self.initial), (.final_xor, "0x{:04X}", self.final_xor), .reflect);
-        }
+        debug_helper::impl_debug_for_struct!(CRCu16, f, self, let .lookup_table = self.lookup_table.as_ref(), (.sum, "0x{:04X}", self.sum), .bits, (.initial, "0x{:04X}", self.initial), (.final_xor, "0x{:04X}", self.final_xor), .reflect);
     }
 }
 
@@ -51,31 +44,13 @@ impl CRCu16 {
     pub fn create_crc(poly: u16, bits: u8, initial: u16, final_xor: u16, reflect: bool) -> CRCu16 {
         debug_assert!(bits <= 16 && bits > 0);
 
-        if bits.is_multiple_of(8) {
-            let lookup_table = if reflect {
-                LookUpTable::Dynamic(Self::crc_reflect_table(poly))
-            } else {
-                LookUpTable::Dynamic(Self::crc_table(poly, bits))
-            };
-
-            Self::create_crc_with_exists_lookup_table(
-                lookup_table,
-                bits,
-                initial,
-                final_xor,
-                reflect,
-            )
+        let lookup_table = if reflect {
+            LookUpTable::Dynamic(Self::crc_reflect_table(poly))
         } else {
-            Self::create(
-                false,
-                LookUpTable::Static(&[0u16; 256]),
-                poly,
-                bits,
-                initial,
-                final_xor,
-                reflect,
-            )
-        }
+            LookUpTable::Dynamic(Self::crc_table(poly, bits))
+        };
+
+        Self::create_crc_with_exists_lookup_table(lookup_table, bits, initial, final_xor, reflect)
     }
 
     #[inline]
@@ -86,121 +61,65 @@ impl CRCu16 {
         final_xor: u16,
         reflect: bool,
     ) -> CRCu16 {
-        debug_assert!(bits.is_multiple_of(8));
+        let mask = u16::MAX >> (u16::BITS - u32::from(bits));
 
-        Self::create(true, lookup_table, 0, bits, initial, final_xor, reflect)
-    }
-
-    #[inline]
-    fn create(
-        by_table: bool,
-        lookup_table: LookUpTable<u16>,
-        mut poly: u16,
-        bits: u8,
-        initial: u16,
-        final_xor: u16,
-        reflect: bool,
-    ) -> CRCu16 {
-        let high_bit = 1 << u16::from(bits - 1);
-        let mask = ((high_bit - 1) << 1) | 1;
-
-        // The bit-by-bit path works in the non-reflected domain, so only the table path needs a reflected initial value.
-        let sum =
-            if by_table && reflect { Self::reflect_function(high_bit, initial) } else { initial };
-
-        if !by_table && reflect {
-            poly = Self::reflect_function(high_bit, poly);
-        }
-
-        CRCu16 {
-            by_table,
-            poly,
+        let mut crc = CRCu16 {
             lookup_table,
-            sum,
+            sum: 0,
             bits,
-            high_bit,
             mask,
             initial,
             final_xor,
             reflect,
-        }
+        };
+
+        crc.reset();
+
+        crc
     }
 
     #[inline]
-    fn reflect_function(high_bit: u16, n: u16) -> u16 {
-        let bits = high_bit.trailing_zeros() + 1;
-
-        n.reverse_bits() >> (u16::BITS - bits)
-    }
-
-    #[inline]
-    fn reflect_method(&self, n: u16) -> u16 {
-        Self::reflect_function(self.high_bit, n)
+    fn reflect_function(bits: u8, n: u16) -> u16 {
+        n.reverse_bits() >> (u16::BITS - u32::from(bits))
     }
 
     /// Update the current CRC state with bytes.
     #[inline]
     pub fn update(&mut self, data: &[u8]) {
-        if self.by_table {
-            if self.bits == 8 {
-                for n in data.iter().copied() {
-                    let index = (self.sum as u8 ^ n) as usize;
-                    self.sum = self.lookup_table[index];
+        let table = &*self.lookup_table;
+
+        let mut sum = self.sum;
+
+        // Mix the rest of the register with the next input byte before the table lookup finishes, which shortens the dependency chain of each byte.
+        if let Some((&first, rest)) = data.split_first() {
+            if self.reflect {
+                let mut index = sum as u8 ^ first;
+                let mut sum_high = sum >> 8;
+
+                for n in rest.iter().copied() {
+                    let t = table[usize::from(index)];
+
+                    index = t as u8 ^ (sum_high as u8 ^ n);
+                    sum_high = (sum_high ^ t) >> 8;
                 }
-            } else if self.reflect {
-                for n in data.iter().copied() {
-                    let index = ((self.sum as u8) ^ n) as usize;
-                    self.sum = (self.sum >> 8) ^ self.lookup_table[index];
-                }
+
+                sum = sum_high ^ table[usize::from(index)];
             } else {
-                for n in data.iter().copied() {
-                    let index = ((self.sum >> u16::from(self.bits - 8)) as u8 ^ n) as usize;
-                    self.sum = (self.sum << 8) ^ self.lookup_table[index];
+                let mut index = (sum >> 8) as u8 ^ first;
+                let mut sum_low = sum << 8;
+
+                for n in rest.iter().copied() {
+                    let t = table[usize::from(index)];
+
+                    index = (t >> 8) as u8 ^ ((sum_low >> 8) as u8 ^ n);
+                    sum_low = (sum_low ^ t) << 8;
                 }
-            }
-        } else if self.reflect {
-            for n in data.iter().copied() {
-                let n = super::crc_u8::CRCu8::reflect_function(0x80, n);
 
-                let mut i = 0x80;
-
-                while i != 0 {
-                    let mut bit = self.sum & self.high_bit;
-
-                    self.sum <<= 1;
-
-                    if n & i != 0 {
-                        bit ^= self.high_bit;
-                    }
-
-                    if bit != 0 {
-                        self.sum ^= self.poly;
-                    }
-
-                    i >>= 1;
-                }
-            }
-        } else {
-            for n in data.iter().copied() {
-                let mut i = 0x80;
-
-                while i != 0 {
-                    let mut bit = self.sum & self.high_bit;
-
-                    self.sum <<= 1;
-
-                    if n & i != 0 {
-                        bit ^= self.high_bit;
-                    }
-
-                    if bit != 0 {
-                        self.sum ^= self.poly;
-                    }
-
-                    i >>= 1;
-                }
+                sum = sum_low ^ table[usize::from(index)];
             }
         }
+
+        self.sum = sum;
     }
 
     /// Digest some data.
@@ -213,68 +132,69 @@ impl CRCu16 {
 
     /// Reset the sum.
     pub fn reset(&mut self) {
-        self.sum = if self.by_table && self.reflect {
-            Self::reflect_function(self.high_bit, self.initial)
+        self.sum = if self.reflect {
+            Self::reflect_function(self.bits, self.initial)
         } else {
-            self.initial
+            // A non-reflected register is left-aligned, so the same table layout works for any width.
+            self.initial << (u16::BITS - u32::from(self.bits))
         };
     }
 
     /// Get the current CRC value (it always returns a `u16` value). You can continue calling `update` or `digest` even after getting a CRC value.
     pub fn get_crc(&self) -> u16 {
-        if self.by_table || !self.reflect {
-            (self.sum ^ self.final_xor) & self.mask
-        } else {
-            (self.reflect_method(self.sum) ^ self.final_xor) & self.mask
-        }
+        let sum =
+            if self.reflect { self.sum } else { self.sum >> (u16::BITS - u32::from(self.bits)) };
+
+        (sum ^ self.final_xor) & self.mask
     }
 
-    fn crc_reflect_table(poly_rev: u16) -> [u16; 256] {
-        let mut lookup_table = [0u16; 256];
+    /// Build the lookup table of a reflected CRC. `poly_rev` is the reversed polynomial.
+    pub(crate) const fn crc_reflect_table(poly_rev: u16) -> [u16; 256] {
+        let mut lookup_table = [0; 256];
 
-        for (i, e) in lookup_table.iter_mut().enumerate() {
+        let mut i = 0;
+
+        while i < 256 {
             let mut v = i as u16;
 
-            #[allow(clippy::branches_sharing_code)]
-            for _ in 0..8u8 {
-                if v & 1 != 0 {
-                    v >>= 1;
-                    v ^= poly_rev;
-                } else {
-                    v >>= 1;
-                }
+            let mut j = 0;
+
+            while j < 8 {
+                v = if v & 1 == 0 { v >> 1 } else { (v >> 1) ^ poly_rev };
+
+                j += 1;
             }
 
-            *e = v;
+            lookup_table[i] = v;
+
+            i += 1;
         }
 
         lookup_table
     }
 
-    fn crc_table(poly: u16, bits: u8) -> [u16; 256] {
-        let mut lookup_table = [0u16; 256];
+    /// Build the lookup table of a non-reflected CRC. The polynomial is left-aligned to 16 bits first.
+    pub(crate) const fn crc_table(poly: u16, bits: u8) -> [u16; 256] {
+        let poly = poly << (u16::BITS - bits as u32);
 
-        let mask1 = 1u16 << u16::from(bits - 1);
+        let mut lookup_table = [0; 256];
 
-        let mask2 = ((mask1 - 1) << 1) | 1;
+        let mut i = 0;
 
-        // The first `bits - 8` shifts never XOR the polynomial, so start from the shifted index directly.
-        let shift = u16::from(bits - 8);
+        while i < 256 {
+            let mut v = (i as u16) << 8;
 
-        for (i, e) in lookup_table.iter_mut().enumerate() {
-            let mut v = (i as u16) << shift;
+            let mut j = 0;
 
-            #[allow(clippy::branches_sharing_code)]
-            for _ in 0..8u8 {
-                if v & mask1 == 0 {
-                    v <<= 1;
-                } else {
-                    v <<= 1;
-                    v ^= poly;
-                }
+            while j < 8 {
+                v = if v & (1 << 15) == 0 { v << 1 } else { (v << 1) ^ poly };
+
+                j += 1;
             }
 
-            *e = v & mask2;
+            lookup_table[i] = v;
+
+            i += 1;
         }
 
         lookup_table
@@ -347,7 +267,10 @@ impl CRCu16 {
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x199\", &crc.to_string());")]
     /// ```
     pub fn crc10() -> CRCu16 {
-        Self::create_crc(0x0233, 10, 0x0000, 0x0000, false)
+        // Self::create_crc(0x0233, 10, 0x0000, 0x0000, false)
+
+        let lookup_table = LookUpTable::Static(&NO_REF_10_0233);
+        Self::create_crc_with_exists_lookup_table(lookup_table, 10, 0x0000, 0x0000, false)
     }
 
     /// |Check|Poly|Init|Ref|XorOut|
@@ -361,7 +284,10 @@ impl CRCu16 {
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x233\", &crc.to_string());")]
     /// ```
     pub fn crc10cdma2000() -> CRCu16 {
-        Self::create_crc(0x03D9, 10, 0x03FF, 0x0000, false)
+        // Self::create_crc(0x03D9, 10, 0x03FF, 0x0000, false)
+
+        let lookup_table = LookUpTable::Static(&NO_REF_10_03D9);
+        Self::create_crc_with_exists_lookup_table(lookup_table, 10, 0x03FF, 0x0000, false)
     }
 
     /// |Check|Poly|Init|Ref|XorOut|
@@ -375,7 +301,10 @@ impl CRCu16 {
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x12A\", &crc.to_string());")]
     /// ```
     pub fn crc10gsm() -> CRCu16 {
-        Self::create_crc(0x0175, 10, 0x0000, 0x03FF, false)
+        // Self::create_crc(0x0175, 10, 0x0000, 0x03FF, false)
+
+        let lookup_table = LookUpTable::Static(&NO_REF_10_0175);
+        Self::create_crc_with_exists_lookup_table(lookup_table, 10, 0x0000, 0x03FF, false)
     }
 
     /// |Check|Poly|Init|Ref|XorOut|
@@ -389,7 +318,10 @@ impl CRCu16 {
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x5A3\", &crc.to_string());")]
     /// ```
     pub fn crc11() -> CRCu16 {
-        Self::create_crc(0x0385, 11, 0x001A, 0x0000, false)
+        // Self::create_crc(0x0385, 11, 0x001A, 0x0000, false)
+
+        let lookup_table = LookUpTable::Static(&NO_REF_11_0385);
+        Self::create_crc_with_exists_lookup_table(lookup_table, 11, 0x001A, 0x0000, false)
     }
 
     /// |Check|Poly|Init|Ref|XorOut|
@@ -403,7 +335,10 @@ impl CRCu16 {
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xF5B\", &crc.to_string());")]
     /// ```
     pub fn crc12() -> CRCu16 {
-        Self::create_crc(0x080F, 12, 0x0000, 0x0000, false)
+        // Self::create_crc(0x080F, 12, 0x0000, 0x0000, false)
+
+        let lookup_table = LookUpTable::Static(&NO_REF_12_080F);
+        Self::create_crc_with_exists_lookup_table(lookup_table, 12, 0x0000, 0x0000, false)
     }
 
     /// |Check|Poly|Init|Ref|XorOut|
@@ -417,7 +352,10 @@ impl CRCu16 {
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xD4D\", &crc.to_string());")]
     /// ```
     pub fn crc12cdma2000() -> CRCu16 {
-        Self::create_crc(0x0F13, 12, 0x0FFF, 0x0000, false)
+        // Self::create_crc(0x0F13, 12, 0x0FFF, 0x0000, false)
+
+        let lookup_table = LookUpTable::Static(&NO_REF_12_0F13);
+        Self::create_crc_with_exists_lookup_table(lookup_table, 12, 0x0FFF, 0x0000, false)
     }
 
     /// |Check|Poly|Init|Ref|XorOut|
@@ -431,7 +369,10 @@ impl CRCu16 {
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0xB34\", &crc.to_string());")]
     /// ```
     pub fn crc12gsm() -> CRCu16 {
-        Self::create_crc(0x0D31, 12, 0x0000, 0x0FFF, false)
+        // Self::create_crc(0x0D31, 12, 0x0000, 0x0FFF, false)
+
+        let lookup_table = LookUpTable::Static(&NO_REF_12_0D31);
+        Self::create_crc_with_exists_lookup_table(lookup_table, 12, 0x0000, 0x0FFF, false)
     }
 
     /// |Check|Poly|Init|Ref|XorOut|
@@ -445,7 +386,10 @@ impl CRCu16 {
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x04FA\", &crc.to_string());")]
     /// ```
     pub fn crc13bbc() -> CRCu16 {
-        Self::create_crc(0x1CF5, 13, 0x0000, 0x0000, false)
+        // Self::create_crc(0x1CF5, 13, 0x0000, 0x0000, false)
+
+        let lookup_table = LookUpTable::Static(&NO_REF_13_1CF5);
+        Self::create_crc_with_exists_lookup_table(lookup_table, 13, 0x0000, 0x0000, false)
     }
 
     /// |Check|Poly|Init|Ref|XorOut|
@@ -459,7 +403,10 @@ impl CRCu16 {
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x082D\", &crc.to_string());")]
     /// ```
     pub fn crc14darc() -> CRCu16 {
-        Self::create_crc(0x2804, 14, 0x0000, 0x0000, true)
+        // Self::create_crc(0x2804, 14, 0x0000, 0x0000, true)
+
+        let lookup_table = LookUpTable::Static(&REF_14_2804);
+        Self::create_crc_with_exists_lookup_table(lookup_table, 14, 0x0000, 0x0000, true)
     }
 
     /// |Check|Poly|Init|Ref|XorOut|
@@ -473,7 +420,10 @@ impl CRCu16 {
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x30AE\", &crc.to_string());")]
     /// ```
     pub fn crc14gsm() -> CRCu16 {
-        Self::create_crc(0x202D, 14, 0x0000, 0x3FFF, false)
+        // Self::create_crc(0x202D, 14, 0x0000, 0x3FFF, false)
+
+        let lookup_table = LookUpTable::Static(&NO_REF_14_202D);
+        Self::create_crc_with_exists_lookup_table(lookup_table, 14, 0x0000, 0x3FFF, false)
     }
 
     /// |Check|Poly|Init|Ref|XorOut|
@@ -487,7 +437,10 @@ impl CRCu16 {
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x059E\", &crc.to_string());")]
     /// ```
     pub fn crc15can() -> CRCu16 {
-        Self::create_crc(0x4599, 15, 0x0000, 0x0000, false)
+        // Self::create_crc(0x4599, 15, 0x0000, 0x0000, false)
+
+        let lookup_table = LookUpTable::Static(&NO_REF_15_4599);
+        Self::create_crc_with_exists_lookup_table(lookup_table, 15, 0x0000, 0x0000, false)
     }
 
     /// |Check|Poly|Init|Ref|XorOut|
@@ -501,7 +454,10 @@ impl CRCu16 {
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x2566\", &crc.to_string());")]
     /// ```
     pub fn crc15mpt1327() -> CRCu16 {
-        Self::create_crc(0x6815, 15, 0x0000, 0x0001, false)
+        // Self::create_crc(0x6815, 15, 0x0000, 0x0001, false)
+
+        let lookup_table = LookUpTable::Static(&NO_REF_15_6815);
+        Self::create_crc_with_exists_lookup_table(lookup_table, 15, 0x0000, 0x0001, false)
     }
 
     /// |Check|Poly|Init|Ref|XorOut|
