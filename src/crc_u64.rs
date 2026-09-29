@@ -45,7 +45,9 @@ impl Display for CRCu64 {
 }
 
 impl CRCu64 {
-    /// Create a `CRCu64` instance by providing the length of bits, expression, reflection, an initial value and a final xor value.
+    /// Create a `CRCu64` instance by providing a polynomial, the length of bits, an initial value, a final XOR value and a reflection setting.
+    ///
+    /// The parameters work the same way as in [`CRC::create_crc`](crate::CRC::create_crc), but `bits` must be between `1` and `64`.
     pub fn create_crc(poly: u64, bits: u8, initial: u64, final_xor: u64, reflect: bool) -> CRCu64 {
         debug_assert!(bits <= 64 && bits > 0);
 

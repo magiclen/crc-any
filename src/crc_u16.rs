@@ -45,7 +45,9 @@ impl Display for CRCu16 {
 }
 
 impl CRCu16 {
-    /// Create a `CRCu16` instance by providing the length of bits, expression, reflection, an initial value and a final xor value.
+    /// Create a `CRCu16` instance by providing a polynomial, the length of bits, an initial value, a final XOR value and a reflection setting.
+    ///
+    /// The parameters work the same way as in [`CRC::create_crc`](crate::CRC::create_crc), but `bits` must be between `1` and `16`.
     pub fn create_crc(poly: u16, bits: u8, initial: u16, final_xor: u16, reflect: bool) -> CRCu16 {
         debug_assert!(bits <= 16 && bits > 0);
 
@@ -705,7 +707,7 @@ impl CRCu16 {
 
     /// |Check|Poly|Init|Ref|XorOut|
     /// |---|---|---|---|---|
-    /// |0x44C2|0x8005 (rev: 0xA001)|0xFFFF|true|0xFFFF|
+    /// |0x44C2|0x8005 (rev: 0xA001)|0x0000|true|0xFFFF|
     ///
     /// ```
     /// # use crc_any::CRCu16;
@@ -875,7 +877,7 @@ impl CRCu16 {
 
     /// |Check|Poly|Init|Ref|XorOut|
     /// |---|---|---|---|---|
-    /// |0x906E|0x8005 (rev: 0xA001)|0xFFFF|true|0xFFFF|
+    /// |0x906E|0x1021 (rev: 0x8408)|0xFFFF|true|0xFFFF|
     ///
     /// ```
     /// # use crc_any::CRCu16;

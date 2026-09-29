@@ -40,7 +40,9 @@ impl Display for CRCu8 {
 }
 
 impl CRCu8 {
-    /// Create a `CRCu8` instance by providing the length of bits, expression, reflection, an initial value and a final xor value.
+    /// Create a `CRCu8` instance by providing a polynomial, the length of bits, an initial value, a final XOR value and a reflection setting.
+    ///
+    /// The parameters work the same way as in [`CRC::create_crc`](crate::CRC::create_crc), but `bits` must be between `1` and `8`.
     pub fn create_crc(poly: u8, bits: u8, initial: u8, final_xor: u8, reflect: bool) -> CRCu8 {
         debug_assert!(bits <= 8 && bits > 0);
 

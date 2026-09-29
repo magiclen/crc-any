@@ -210,7 +210,17 @@ impl Display for CRC {
 }
 
 impl CRC {
-    /// Create a CRC instance by providing the length of bits, expression, reflection, an initial value and a final xor value.
+    /// Create a CRC instance by providing a polynomial, the length of bits, an initial value, a final XOR value and a reflection setting.
+    ///
+    /// * `poly`: The polynomial. When `reflect` is `true`, pass the reversed polynomial (for example, `0xEDB88320` for CRC-32).
+    /// * `bits`: The width of the CRC in bits. It must be between `1` and `64`.
+    /// * `initial`: The initial value. Pass it as it is listed in CRC catalogs, even when `reflect` is `true`.
+    /// * `final_xor`: The value to XOR with the final result.
+    /// * `reflect`: Whether to reflect both the input bytes and the final result.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `bits` is greater than `64`.
     #[inline]
     pub fn create_crc(poly: u64, bits: u8, initial: u64, final_xor: u64, reflect: bool) -> CRC {
         if bits <= 8 {
@@ -222,11 +232,13 @@ impl CRC {
         } else if bits <= 64 {
             Self::create_crc_u64(poly, bits, initial, final_xor, reflect)
         } else {
-            unimplemented!()
+            panic!("`bits` must be between 1 and 64")
         }
     }
 
-    /// Create a CRC instance by providing the length of bits, expression, reflection, an initial value and a final xor value.
+    /// Create a CRC instance that uses [`CRCu8`] internally.
+    ///
+    /// The parameters work the same way as in [`CRC::create_crc`], but `bits` must be between `1` and `8`.
     #[inline]
     pub fn create_crc_u8(poly: u8, bits: u8, initial: u8, final_xor: u8, reflect: bool) -> CRC {
         let crc = CRCu8::create_crc(poly, bits, initial, final_xor, reflect);
@@ -234,7 +246,9 @@ impl CRC {
         CRC::CRCu8(crc)
     }
 
-    /// Create a CRC instance by providing the length of bits, expression, reflection, an initial value and a final xor value.
+    /// Create a CRC instance that uses [`CRCu16`] internally.
+    ///
+    /// The parameters work the same way as in [`CRC::create_crc`], but `bits` must be between `1` and `16`.
     #[inline]
     pub fn create_crc_u16(poly: u16, bits: u8, initial: u16, final_xor: u16, reflect: bool) -> CRC {
         let crc = CRCu16::create_crc(poly, bits, initial, final_xor, reflect);
@@ -242,7 +256,9 @@ impl CRC {
         CRC::CRCu16(crc)
     }
 
-    /// Create a CRC instance by providing the length of bits, expression, reflection, an initial value and a final xor value.
+    /// Create a CRC instance that uses [`CRCu32`] internally.
+    ///
+    /// The parameters work the same way as in [`CRC::create_crc`], but `bits` must be between `1` and `32`.
     #[inline]
     pub fn create_crc_u32(poly: u32, bits: u8, initial: u32, final_xor: u32, reflect: bool) -> CRC {
         let crc = CRCu32::create_crc(poly, bits, initial, final_xor, reflect);
@@ -250,7 +266,9 @@ impl CRC {
         CRC::CRCu32(crc)
     }
 
-    /// Create a CRC instance by providing the length of bits, expression, reflection, an initial value and a final xor value.
+    /// Create a CRC instance that uses [`CRCu64`] internally.
+    ///
+    /// The parameters work the same way as in [`CRC::create_crc`], but `bits` must be between `1` and `64`.
     #[inline]
     pub fn create_crc_u64(poly: u64, bits: u8, initial: u64, final_xor: u64, reflect: bool) -> CRC {
         let crc = CRCu64::create_crc(poly, bits, initial, final_xor, reflect);
@@ -614,7 +632,7 @@ impl CRC {
 
     /// |Check|Poly|Init|Ref|XorOut|
     /// |---|---|---|---|---|
-    /// |0xDA|0x39 (rev: 0x9C)|0x00|true|0x00|
+    /// |0x15|0x39 (rev: 0x9C)|0x00|true|0x00|
     ///
     /// ```
     /// # use crc_any::CRC;
@@ -1093,7 +1111,7 @@ impl CRC {
 
     /// |Check|Poly|Init|Ref|XorOut|
     /// |---|---|---|---|---|
-    /// |0x44C2|0x8005 (rev: 0xA001)|0xFFFF|true|0xFFFF|
+    /// |0x44C2|0x8005 (rev: 0xA001)|0x0000|true|0xFFFF|
     ///
     /// ```
     /// # use crc_any::CRC;
@@ -1243,7 +1261,7 @@ impl CRC {
 
     /// |Check|Poly|Init|Ref|XorOut|
     /// |---|---|---|---|---|
-    /// |0x906E|0x8005 (rev: 0xA001)|0xFFFF|true|0xFFFF|
+    /// |0x906E|0x1021 (rev: 0x8408)|0xFFFF|true|0xFFFF|
     ///
     /// ```
     /// # use crc_any::CRC;
@@ -1555,7 +1573,7 @@ impl CRC {
 
     /// |Check|Poly|Init|Ref|XorOut|
     /// |---|---|---|---|---|
-    /// |0x340BC6D9|0x04C11DB7 (rev: 0xEDB88320)|0x00000000|true|0x00000000|
+    /// |0x340BC6D9|0x04C11DB7 (rev: 0xEDB88320)|0xFFFFFFFF|true|0x00000000|
     ///
     /// ```
     /// # use crc_any::CRC;

@@ -52,7 +52,9 @@ impl Display for CRCu32 {
 }
 
 impl CRCu32 {
-    /// Create a `CRCu32` instance by providing the length of bits, expression, reflection, an initial value and a final xor value.
+    /// Create a `CRCu32` instance by providing a polynomial, the length of bits, an initial value, a final XOR value and a reflection setting.
+    ///
+    /// The parameters work the same way as in [`CRC::create_crc`](crate::CRC::create_crc), but `bits` must be between `1` and `32`.
     pub fn create_crc(poly: u32, bits: u8, initial: u32, final_xor: u32, reflect: bool) -> CRCu32 {
         debug_assert!(bits <= 32 && bits > 0);
 
