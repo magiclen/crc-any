@@ -778,15 +778,22 @@ impl CRCu16 {
     ///
     /// ```
     /// # use crc_any::CRCu16;
-    /// let mut crc = CRCu16::crc16tms13157();
+    /// let mut crc = CRCu16::crc16tms37157();
     /// crc.digest(b"123456789");
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x26B1\", &crc.to_string());")]
     /// ```
-    pub fn crc16tms13157() -> CRCu16 {
+    pub fn crc16tms37157() -> CRCu16 {
         //         Self::create_crc(0x8408, 16, 0x89EC, 0x0000, true)
 
         let lookup_table = LookUpTable::Static(&REF_16_8408);
         Self::create_crc_with_exists_lookup_table(lookup_table, 16, 0x89EC, 0x0000, true)
+    }
+
+    /// This is the same as [`CRCu16::crc16tms37157`]. The old name has a typo.
+    #[deprecated(note = "use `crc16tms37157` instead")]
+    #[inline]
+    pub fn crc16tms13157() -> CRCu16 {
+        Self::crc16tms37157()
     }
 
     /// |Check|Poly|Init|Ref|XorOut|

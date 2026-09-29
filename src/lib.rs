@@ -74,7 +74,7 @@ For simpler usage, this crate also provides built-in functions for many common C
  * crc16riello
  * crc16t10_dif
  * crc16teledisk
- * crc16tms13157
+ * crc16tms37157
  * crc16usb
  * crc_a
  * crc16kermit
@@ -1176,13 +1176,20 @@ impl CRC {
     ///
     /// ```
     /// # use crc_any::CRC;
-    /// let mut crc = CRC::crc16tms13157();
+    /// let mut crc = CRC::crc16tms37157();
     /// crc.digest(b"123456789");
     #[cfg_attr(feature = "alloc", doc = "assert_eq!(\"0x26B1\", &crc.to_string());")]
     /// ```
     #[inline]
+    pub fn crc16tms37157() -> CRC {
+        CRC::CRCu16(CRCu16::crc16tms37157())
+    }
+
+    /// This is the same as [`CRC::crc16tms37157`]. The old name has a typo.
+    #[deprecated(note = "use `crc16tms37157` instead")]
+    #[inline]
     pub fn crc16tms13157() -> CRC {
-        CRC::CRCu16(CRCu16::crc16tms13157())
+        Self::crc16tms37157()
     }
 
     /// |Check|Poly|Init|Ref|XorOut|

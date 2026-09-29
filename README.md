@@ -70,7 +70,7 @@ For simpler usage, this crate also provides built-in functions for many common C
  * crc16riello
  * crc16t10_dif
  * crc16teledisk
- * crc16tms13157
+ * crc16tms37157
  * crc16usb
  * crc_a
  * crc16kermit
