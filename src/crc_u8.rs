@@ -5,6 +5,7 @@ use crate::{constants::crc_u8::*, lookup_table::LookUpTable};
 
 #[allow(clippy::upper_case_acronyms)]
 /// This struct can help you compute a CRC-8 (or CRC-x where **x** is equal or less than `8`) value.
+#[derive(Clone)]
 pub struct CRCu8 {
     by_table:        bool,
     poly:            u8,

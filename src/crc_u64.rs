@@ -10,6 +10,7 @@ use crate::{constants::crc_u64::*, lookup_table::LookUpTable};
 
 #[allow(clippy::upper_case_acronyms)]
 /// This struct can help you compute a CRC-64 (or CRC-x where **x** is equal or less than `64`) value.
+#[derive(Clone)]
 pub struct CRCu64 {
     by_table:        bool,
     poly:            u64,
